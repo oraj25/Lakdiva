@@ -1,0 +1,231 @@
+/* ========================================================
+   LAKDIVA SECUREPOS
+   LOGIN PAGE
+   ======================================================== */
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f6f8;
+    color: #222;
+}
+
+
+/* ========================================================
+   HEADER
+   ======================================================== */
+
+.top-header {
+    height: 75px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #d9d9d9;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 45px;
+}
+
+
+.brand {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+
+/* ========================================================
+   PAGE
+   ======================================================== */
+
+.login-page {
+    min-height: calc(100vh - 75px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 40px 20px;
+}
+
+
+/* ========================================================
+   LOGIN CARD
+   ======================================================== */
+
+.login-card {
+    width: 100%;
+    max-width: 460px;
+
+    background-color: #ffffff;
+
+    border: 1px solid #d4d4d4;
+
+    border-radius: 8px;
+
+    padding: 40px;
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+.system-title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
+.system-title h1 {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+
+.system-title p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+
+/* ========================================================
+   FORM
+   ======================================================== */
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+
+.form-group label {
+    display: block;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+
+.form-control {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border: 1px solid #bbb;
+
+    border-radius: 5px;
+
+    font-size: 15px;
+}
+
+
+.form-control:focus {
+    outline: 2px solid #222;
+    border-color: #222;
+}
+
+
+.login-button {
+    width: 100%;
+
+    padding: 13px;
+
+    background-color: #222;
+    color: #fff;
+
+    border: none;
+    border-radius: 5px;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+.login-button:hover {
+    background-color: #444;
+}
+
+
+/* ========================================================
+   MESSAGES
+   ======================================================== */
+
+.message {
+    padding: 12px;
+
+    margin-bottom: 20px;
+
+    border-radius: 4px;
+
+    font-size: 14px;
+}
+
+
+.message.success {
+    background-color: #e8f5e9;
+    border: 1px solid #9ccc9c;
+}
+
+
+.message.error {
+    background-color: #fdeaea;
+    border: 1px solid #dfaaaa;
+}
+
+
+.field-error {
+    margin-top: 5px;
+    color: #b00020;
+    font-size: 13px;
+}
+
+
+/* ========================================================
+   HELP
+   ======================================================== */
+
+.login-help {
+    text-align: center;
+
+    margin-top: 22px;
+
+    color: #666;
+
+    font-size: 13px;
+}
+
+
+/* ========================================================
+   SECURITY NOTE
+   ======================================================== */
+
+.security-note {
+    margin-top: 25px;
+
+    padding: 15px;
+
+    border: 1px solid #ddd;
+
+    background-color: #fafafa;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+.security-note strong {
+    display: block;
+    margin-bottom: 5px;
+}

@@ -1,0 +1,172 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Login | Lakdiva SecurePOS
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/login.css' %}"
+    >
+
+</head>
+
+
+<body>
+
+    <header class="top-header">
+
+        <div class="brand">
+            Lakdiva Super
+        </div>
+
+    </header>
+
+
+    <main class="login-page">
+
+        <section class="login-card">
+
+            <div class="system-title">
+
+                <h1>
+                    Lakdiva SecurePOS
+                </h1>
+
+                <p>
+                    Information Security Policy Awareness,
+                    Compliance and Incident Management System
+                </p>
+
+            </div>
+
+
+            <!-- Django messages -->
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div
+                        class="message
+                        {% if message.tags %}
+                            {{ message.tags }}
+                        {% endif %}"
+                    >
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                action="{% url 'login' %}"
+                class="login-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-group">
+
+                    <label for="id_identifier">
+                        Email or Staff Number
+                    </label>
+
+                    {{ form.identifier }}
+
+                    {% if form.identifier.errors %}
+
+                        <div class="field-error">
+
+                            {{ form.identifier.errors }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="id_password">
+                        Password
+                    </label>
+
+                    {{ form.password }}
+
+                    {% if form.password.errors %}
+
+                        <div class="field-error">
+
+                            {{ form.password.errors }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+
+                    LOGIN
+
+                </button>
+
+            </form>
+
+
+            <div class="login-help">
+
+                <p>
+                    Forgot your password?
+                    Contact the Administrator.
+                </p>
+
+            </div>
+
+
+            <div class="security-note">
+
+                <strong>
+                    Secure Access
+                </strong>
+
+                <p>
+                    Access is restricted to authorized
+                    Lakdiva Super employees and
+                    administrators.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

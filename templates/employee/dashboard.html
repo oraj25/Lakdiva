@@ -1,0 +1,242 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+Employee Dashboard | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_dashboard %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Employee Dashboard
+    </h1>
+
+
+    <p class="page-description">
+
+        Welcome,
+        {{ request.user.full_name }}.
+
+        View your current security
+        responsibilities and activities.
+
+    </p>
+
+</div>
+
+
+
+<!-- =====================================================
+     SUMMARY CARDS
+     ===================================================== -->
+
+<div class="card-grid">
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Pending Policies
+        </div>
+
+        <div class="card-value">
+            0
+        </div>
+
+        <div class="card-note">
+            Policies requiring acknowledgement
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Pending Training
+        </div>
+
+        <div class="card-value">
+            0
+        </div>
+
+        <div class="card-note">
+            Assigned training to complete
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Compliance
+        </div>
+
+        <div class="card-value">
+            0%
+        </div>
+
+        <div class="card-note">
+            Overall employee security score
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Shift Status
+        </div>
+
+        <div class="card-value">
+            —
+        </div>
+
+        <div class="card-note">
+            No active POS shift
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     QUICK ACTIONS
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Quick Actions
+    </h2>
+
+
+    <div class="quick-actions">
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Start POS Shift
+            </div>
+
+            <div class="action-description">
+                Start a POS shift and complete
+                the required security check.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                My Policies
+            </div>
+
+            <div class="action-description">
+                Read and acknowledge published
+                security policies.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Training
+            </div>
+
+            <div class="action-description">
+                Complete assigned security
+                awareness training.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Report Incident
+            </div>
+
+            <div class="action-description">
+                Report suspicious activity
+                or security concerns.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                My Compliance
+            </div>
+
+            <div class="action-description">
+                Review your current security
+                compliance status.
+            </div>
+
+        </a>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PENDING TASKS
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Pending Security Tasks
+    </h2>
+
+
+    <div class="empty-state">
+
+        No pending security tasks.
+
+    </div>
+
+</div>
+
+
+{% endblock %}

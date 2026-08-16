@@ -1,0 +1,258 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Administrator Dashboard | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_dashboard %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Administrator Dashboard
+    </h1>
+
+
+    <p class="page-description">
+
+        Monitor employee security awareness,
+        compliance, POS activity and
+        reported security incidents.
+
+    </p>
+
+</div>
+
+
+
+<!-- =====================================================
+     SUMMARY
+     ===================================================== -->
+
+<div class="card-grid">
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Active Employees
+        </div>
+
+        <div class="card-value">
+            0
+        </div>
+
+        <div class="card-note">
+            Active employee accounts
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Pending Incidents
+        </div>
+
+        <div class="card-value">
+            0
+        </div>
+
+        <div class="card-note">
+            New or investigating incidents
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Average Compliance
+        </div>
+
+        <div class="card-value">
+            0%
+        </div>
+
+        <div class="card-note">
+            Average employee security score
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Open Training Needs
+        </div>
+
+        <div class="card-value">
+            0
+        </div>
+
+        <div class="card-note">
+            Training needs requiring action
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     MANAGEMENT ACTIONS
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Management Actions
+    </h2>
+
+
+    <div class="quick-actions">
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Manage Users
+            </div>
+
+            <div class="action-description">
+                Create, update, activate
+                or disable accounts.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Manage Policies
+            </div>
+
+            <div class="action-description">
+                Create, publish, version
+                and archive policies.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Manage Training
+            </div>
+
+            <div class="action-description">
+                Manage training modules,
+                assignments and quizzes.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Review Incidents
+            </div>
+
+            <div class="action-description">
+                Investigate and resolve
+                reported security incidents.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Employee Compliance
+            </div>
+
+            <div class="action-description">
+                Monitor employee security
+                compliance scores.
+            </div>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Training Needs
+            </div>
+
+            <div class="action-description">
+                Review identified security
+                training requirements.
+            </div>
+
+        </a>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     RECENT ACTIVITY
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Recent Security Activity
+    </h2>
+
+
+    <div class="empty-state">
+
+        No security activity has been
+        recorded yet.
+
+    </div>
+
+</div>
+
+
+{% endblock %}

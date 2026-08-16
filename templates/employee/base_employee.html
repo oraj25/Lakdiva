@@ -1,0 +1,303 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            Lakdiva SecurePOS
+        {% endblock %}
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/app.css' %}"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+
+<header class="app-header">
+
+    <div class="header-left">
+
+        <button
+            id="menuButton"
+            class="menu-button"
+            type="button"
+            aria-label="Open navigation"
+        >
+            ☰
+        </button>
+
+
+        <div class="company-name">
+            Lakdiva Super
+        </div>
+
+    </div>
+
+
+    <div class="header-right">
+
+        <div class="user-info">
+
+            <span class="user-name">
+
+                {{ request.user.full_name }}
+
+            </span>
+
+
+            <span class="user-role">
+
+                {{ request.user.staff_no }}
+                |
+                Employee
+
+            </span>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'logout' %}"
+            class="logout-form"
+        >
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="logout-button"
+            >
+                Logout
+            </button>
+
+        </form>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     EMPLOYEE SIDEBAR
+     ===================================================== -->
+
+<aside
+    id="sidebar"
+    class="sidebar"
+>
+
+    <div class="sidebar-title">
+        Lakdiva SecurePOS
+    </div>
+
+
+    <ul class="sidebar-nav">
+
+
+        <li>
+
+            <a
+                href="{% url 'employee_dashboard' %}"
+                class="
+                    sidebar-link
+                    {% block nav_dashboard %}
+                    {% endblock %}
+                "
+            >
+                Dashboard
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_policies %}
+                    {% endblock %}
+                "
+            >
+                My Policies
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_training %}
+                    {% endblock %}
+                "
+            >
+                Training
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_pos %}
+                    {% endblock %}
+                "
+            >
+                POS Shift & Security Check
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_incident %}
+                    {% endblock %}
+                "
+            >
+                Report Incident
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_compliance %}
+                    {% endblock %}
+                "
+            >
+                My Compliance
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_notifications %}
+                    {% endblock %}
+                "
+            >
+                Notifications
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a
+                href="#"
+                class="
+                    sidebar-link
+                    {% block nav_profile %}
+                    {% endblock %}
+                "
+            >
+                Profile
+            </a>
+
+        </li>
+
+
+    </ul>
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+<main class="main-content">
+
+
+    {% if messages %}
+
+        <div class="messages">
+
+            {% for message in messages %}
+
+                <div
+                    class="
+                        message
+                        {{ message.tags }}
+                    "
+                >
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+
+    {% block content %}
+
+    {% endblock %}
+
+
+</main>
+
+
+
+<script
+    src="{% static 'js/app.js' %}"
+></script>
+
+
+</body>
+
+</html>
