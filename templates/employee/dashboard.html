@@ -49,7 +49,7 @@ active
         </div>
 
         <div class="card-value">
-            0
+            {{ pending_policy_count }}
         </div>
 
         <div class="card-note">
@@ -146,7 +146,7 @@ active
 
 
         <a
-            href="#"
+            href="{% url 'policies:employee_list' %}"
             class="action-card"
         >
 

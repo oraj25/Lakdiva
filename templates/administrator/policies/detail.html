@@ -1,0 +1,260 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+{{ policy.title }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_policies %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ policy.title }}
+    </h1>
+
+    <p class="page-description">
+
+        Version {{ policy.version }}
+
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Status
+        </div>
+
+        <div class="card-value small-value">
+            {{ policy.status }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Version
+        </div>
+
+        <div class="card-value small-value">
+            {{ policy.version }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Acknowledged
+        </div>
+
+        <div class="card-value small-value">
+            {{ acknowledgement_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Pending
+        </div>
+
+        <div class="card-value small-value">
+            {{ pending_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Policy Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>Type</strong>
+            <p>{{ policy.policy_type }}</p>
+        </div>
+
+
+        <div>
+            <strong>Version</strong>
+            <p>{{ policy.version }}</p>
+        </div>
+
+
+        <div>
+            <strong>Effective Date</strong>
+
+            <p>
+                {{ policy.effective_date|default:"Not set" }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Review Date</strong>
+
+            <p>
+                {{ policy.review_date|default:"Not set" }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Created By</strong>
+
+            <p>
+                {{ policy.created_by.full_name }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Created At</strong>
+
+            <p>
+                {{ policy.created_at }}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Policy Content
+    </h2>
+
+    <div class="policy-content">
+
+        {{ policy.content|linebreaks }}
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Policy Actions
+    </h2>
+
+
+    <div class="form-actions">
+
+
+        {% if policy.status == "Draft" %}
+
+            <a
+                href="{% url 'policies:admin_edit' policy.policy_id %}"
+                class="btn btn-secondary"
+            >
+                Edit Draft
+            </a>
+
+
+            <form
+                method="post"
+                action="{% url 'policies:admin_publish' policy.policy_id %}"
+                class="inline-form"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    onclick="return confirm('Publish this policy? Employees will be able to view it.')"
+                >
+                    Publish Policy
+                </button>
+
+            </form>
+
+        {% endif %}
+
+
+        {% if policy.status == "Published" %}
+
+            <a
+                href="{% url 'policies:admin_new_version' policy.policy_id %}"
+                class="btn btn-primary"
+            >
+                Create New Version
+            </a>
+
+
+            <form
+                method="post"
+                action="{% url 'policies:admin_archive' policy.policy_id %}"
+                class="inline-form"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-secondary"
+                    onclick="return confirm('Archive this policy?')"
+                >
+                    Archive Policy
+                </button>
+
+            </form>
+
+        {% endif %}
+
+
+        {% if policy.status == "Archived" %}
+
+            <a
+                href="{% url 'policies:admin_new_version' policy.policy_id %}"
+                class="btn btn-primary"
+            >
+                Create New Version
+            </a>
+
+        {% endif %}
+
+
+        <a
+            href="{% url 'policies:admin_list' %}"
+            class="btn btn-secondary"
+        >
+            Back
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     # Lakdiva SecurePOS applications
     "core",
     "accounts",
+    "auditlog",
+    "policies",
 ]
 
 

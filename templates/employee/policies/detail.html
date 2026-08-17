@@ -1,0 +1,188 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+{{ policy.title }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_policies %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ policy.title }}
+    </h1>
+
+    <p class="page-description">
+        Version {{ policy.version }}
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Policy Type
+            </strong>
+
+            <p>
+                {{ policy.policy_type }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Version
+            </strong>
+
+            <p>
+                {{ policy.version }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Effective Date
+            </strong>
+
+            <p>
+                {{ policy.effective_date|default:"Not set" }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Review Date
+            </strong>
+
+            <p>
+                {{ policy.review_date|default:"Not set" }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Policy
+    </h2>
+
+
+    <div class="policy-content">
+
+        {{ policy.content|linebreaks }}
+
+    </div>
+
+</div>
+
+
+{% if acknowledgement %}
+
+    <div class="panel acknowledgement-success">
+
+        <h2 class="panel-title">
+            Policy Acknowledged
+        </h2>
+
+        <p>
+
+            You acknowledged this policy on:
+
+            <strong>
+                {{ acknowledgement.acknowledged_at }}
+            </strong>
+
+        </p>
+
+    </div>
+
+{% else %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Policy Acknowledgement
+        </h2>
+
+
+        <form
+            method="post"
+            action="{% url 'policies:employee_acknowledge' policy.policy_id %}"
+        >
+
+            {% csrf_token %}
+
+
+            <label class="acknowledgement-checkbox">
+
+                <input
+                    type="checkbox"
+                    name="confirm"
+                    value="yes"
+                    required
+                >
+
+                <span>
+
+                    I confirm that I have read
+                    and understood this policy.
+
+                </span>
+
+            </label>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Acknowledge Policy
+                </button>
+
+
+                <a
+                    href="{% url 'policies:employee_list' %}"
+                    class="btn btn-secondary"
+                >
+                    Back
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+{% endif %}
+
+
+{% endblock %}

@@ -8,15 +8,25 @@ from django.urls import (
 
 urlpatterns = [
 
-    # Django development/admin panel
+    # Django Admin
     path(
         "admin/",
         admin.site.urls,
     ),
 
-    # Lakdiva SecurePOS
+    # Authentication / dashboards
     path(
         "",
-        include("accounts.urls"),
+        include(
+            "accounts.urls"
+        ),
+    ),
+
+    # Security Policy Management
+    path(
+        "",
+        include(
+            "policies.urls"
+        ),
     ),
 ]

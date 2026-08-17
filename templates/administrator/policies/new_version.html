@@ -1,0 +1,93 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Create New Policy Version
+{% endblock %}
+
+
+{% block nav_policies %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Create New Version
+    </h1>
+
+    <p class="page-description">
+
+        {{ policy.title }}
+
+        — Current version:
+        {{ policy.version }}
+
+    </p>
+
+</div>
+
+
+<div class="panel form-panel">
+
+    <p class="version-note">
+
+        The existing policy content will be copied
+        into a new Draft. You can then edit the new
+        Draft before publishing it.
+
+    </p>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        <div class="form-group">
+
+            <label for="{{ form.version.id_for_label }}">
+                New Version
+            </label>
+
+            {{ form.version }}
+
+
+            {% for error in form.version.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Create Draft Version
+            </button>
+
+
+            <a
+                href="{% url 'policies:admin_detail' policy.policy_id %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

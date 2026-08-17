@@ -1,0 +1,255 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Policy Management | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_policies %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Policy Management
+    </h1>
+
+    <p class="page-description">
+        Create, publish, version and archive
+        Lakdiva Super security policies.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <form
+            method="get"
+            class="filter-form"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search policies..."
+                value="{{ search }}"
+            >
+
+
+            <select
+                name="type"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Policy Types
+                </option>
+
+                {% for value, label in policy_types %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_type == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <select
+                name="status"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Statuses
+                </option>
+
+                {% for value, label in statuses %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_status == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="btn btn-secondary"
+            >
+                Filter
+            </button>
+
+        </form>
+
+
+        <a
+            href="{% url 'policies:admin_create' %}"
+            class="btn btn-primary"
+        >
+            + Create Policy
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Security Policies
+    </h2>
+
+
+    {% if policies %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Policy
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Version
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Effective
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for policy in policies %}
+
+                        <tr>
+
+                            <td>
+                                {{ policy.title }}
+                            </td>
+
+                            <td>
+                                {{ policy.policy_type }}
+                            </td>
+
+                            <td>
+                                v{{ policy.version }}
+                            </td>
+
+                            <td>
+
+                                {% if policy.status == "Published" %}
+
+                                    <span class="badge badge-success">
+                                        Published
+                                    </span>
+
+                                {% elif policy.status == "Draft" %}
+
+                                    <span class="badge badge-warning">
+                                        Draft
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        Archived
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if policy.effective_date %}
+
+                                    {{ policy.effective_date }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'policies:admin_detail' policy.policy_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No policies found.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

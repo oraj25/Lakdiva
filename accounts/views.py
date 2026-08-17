@@ -20,6 +20,11 @@ from .decorators import role_required
 from .forms import LoginForm
 from .models import LoginAttempt, Role
 
+from policies.models import (
+    EMPLOYEE_POLICY_TYPES,
+    Policy,
+    PolicyAcknowledgement,
+)
 
 # =========================================================
 # HELPER FUNCTIONS
@@ -236,9 +241,47 @@ def logout_view(request):
 @role_required(Role.EMPLOYEE)
 def employee_dashboard(request):
 
+    published_policies = (
+        Policy.objects.filter(
+            status=(
+                Policy.Status.PUBLISHED
+            ),
+            policy_type__in=(
+                EMPLOYEE_POLICY_TYPES
+            ),
+        )
+    )
+
+    total_policies = (
+        published_policies.count()
+    )
+
+    acknowledged_policies = (
+        PolicyAcknowledgement
+        .objects
+        .filter(
+            user=request.user,
+            policy__in=(
+                published_policies
+            ),
+        )
+        .count()
+    )
+
+    pending_policy_count = max(
+        total_policies
+        - acknowledged_policies,
+        0,
+    )
+
     return render(
         request,
         "employee/dashboard.html",
+        {
+            "pending_policy_count": (
+                pending_policy_count
+            ),
+        },
     )
 
 
