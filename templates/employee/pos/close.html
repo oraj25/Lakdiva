@@ -1,0 +1,138 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+End POS Shift | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_pos %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        End Shift & Handover
+    </h1>
+
+    <p class="page-description">
+        {{ shift.pos.terminal_code }}
+        — Shift #{{ shift.shift_id }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Opening Cash
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.opening_cash }}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-label">
+            Cash In
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.cash_in }}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-label">
+            Cash Out
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.cash_out }}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-label">
+            Expected Cash
+        </div>
+
+        <div class="card-value small-value">
+            {{ expected_cash }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel form-panel">
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% for error in field.errors %}
+
+                    <div class="field-error">
+                        {{ error }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Complete this POS shift?')"
+            >
+                Complete Shift
+            </button>
+
+            <a
+                href="{% url 'pos_security:employee_detail' shift.shift_id %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

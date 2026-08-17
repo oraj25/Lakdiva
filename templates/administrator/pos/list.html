@@ -1,0 +1,195 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+POS Shift Records | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_pos %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        POS Shift Records
+    </h1>
+
+    <p class="page-description">
+        Review employee POS shifts,
+        handovers and security checks.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <form
+        method="get"
+        class="filter-form"
+    >
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Employee or POS..."
+            value="{{ search }}"
+        >
+
+
+        <select
+            name="pos"
+            class="form-control"
+        >
+
+            <option value="">
+                All POS Terminals
+            </option>
+
+            {% for terminal in terminals %}
+
+                <option
+                    value="{{ terminal.pos_id }}"
+                    {% if selected_pos == terminal.pos_id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ terminal.terminal_code }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <select
+            name="status"
+            class="form-control"
+        >
+
+            <option value="">
+                All Statuses
+            </option>
+
+            {% for value, label in statuses %}
+
+                <option
+                    value="{{ value }}"
+                    {% if selected_status == value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ label }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button
+            type="submit"
+            class="btn btn-secondary"
+        >
+            Filter
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="panel">
+
+    {% if shifts %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Shift</th>
+                        <th>Employee</th>
+                        <th>POS</th>
+                        <th>Started</th>
+                        <th>Status</th>
+                        <th>Variance</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for shift in shifts %}
+
+                        <tr>
+
+                            <td>
+                                #{{ shift.shift_id }}
+                            </td>
+
+                            <td>
+                                {{ shift.user.staff_no }}
+                                -
+                                {{ shift.user.full_name }}
+                            </td>
+
+                            <td>
+                                {{ shift.pos.terminal_code }}
+                            </td>
+
+                            <td>
+                                {{ shift.shift_start }}
+                            </td>
+
+                            <td>
+                                {{ shift.status }}
+                            </td>
+
+                            <td>
+                                {{ shift.cash_variance|default:"—" }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'pos_security:admin_detail' shift.shift_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            No POS shifts found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

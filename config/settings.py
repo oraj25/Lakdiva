@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "auditlog",
     "policies",
     "training",
+    "pos_security",
 ]
 
 

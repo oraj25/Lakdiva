@@ -30,6 +30,10 @@ from training.models import (
     EmployeeTraining,
 )
 
+from pos_security.models import (
+    POSShift,
+)
+
 # =========================================================
 # HELPER FUNCTIONS
 # =========================================================
@@ -244,6 +248,19 @@ def logout_view(request):
 
 @role_required(Role.EMPLOYEE)
 def employee_dashboard(request):
+    open_shift = (
+    POSShift.objects
+    .filter(
+        user=request.user,
+        status=POSShift.Status.OPEN,
+    )
+    .select_related(
+        "pos"
+    )
+    .first()
+)
+
+    
 
     # -----------------------------------------------------
     # POLICY COUNT
@@ -318,6 +335,8 @@ def employee_dashboard(request):
             "pending_training_count": (
                 pending_training_count
             ),
+
+            "open_shift": open_shift,
         },
     )
 # =========================================================

@@ -93,11 +93,22 @@ active
     </div>
 
 
-    <div class="card">
+    <div class="card-label">
+        Shift Status
+    </div>
 
-        <div class="card-label">
-            Shift Status
+
+    {% if open_shift %}
+
+        <div class="card-value small-value">
+            {{ open_shift.pos.terminal_code }}
         </div>
+
+        <div class="card-note">
+            Active shift #{{ open_shift.shift_id }}
+        </div>
+
+    {% else %}
 
         <div class="card-value">
             —
@@ -107,7 +118,7 @@ active
             No active POS shift
         </div>
 
-    </div>
+    {% endif %}
 
 
 </div>
@@ -129,7 +140,7 @@ active
 
 
         <a
-            href="#"
+            href="{% url 'pos_security:employee_list' %}"
             class="action-card"
         >
 

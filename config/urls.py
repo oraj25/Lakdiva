@@ -37,4 +37,11 @@ urlpatterns = [
             "training.urls"
         ),
     ),
+
+    path(
+        "",
+        include(
+            "pos_security.urls"
+        ),
+    )
 ]

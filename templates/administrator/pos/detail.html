@@ -1,0 +1,281 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+POS Shift Details | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_pos %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        POS Shift #{{ shift.shift_id }}
+    </h1>
+
+    <p class="page-description">
+        {{ shift.pos.terminal_code }}
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Shift Information
+    </h2>
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>Employee</strong>
+            <p>
+                {{ shift.user.staff_no }}
+                -
+                {{ shift.user.full_name }}
+            </p>
+        </div>
+
+        <div>
+            <strong>POS</strong>
+            <p>
+                {{ shift.pos.terminal_code }}
+            </p>
+        </div>
+
+        <div>
+            <strong>Start</strong>
+            <p>
+                {{ shift.shift_start }}
+            </p>
+        </div>
+
+        <div>
+            <strong>End</strong>
+            <p>
+                {{ shift.shift_end|default:"—" }}
+            </p>
+        </div>
+
+        <div>
+            <strong>Status</strong>
+            <p>
+                {{ shift.status }}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Cash Information
+    </h2>
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>Opening Cash</strong>
+            <p>{{ shift.opening_cash }}</p>
+        </div>
+
+        <div>
+            <strong>Cash In</strong>
+            <p>{{ shift.cash_in }}</p>
+        </div>
+
+        <div>
+            <strong>Cash Out</strong>
+            <p>{{ shift.cash_out }}</p>
+        </div>
+
+        <div>
+            <strong>Expected Cash</strong>
+            <p>{{ shift.expected_cash }}</p>
+        </div>
+
+        <div>
+            <strong>Closing Cash</strong>
+            <p>
+                {{ shift.closing_cash|default:"—" }}
+            </p>
+        </div>
+
+        <div>
+            <strong>Variance</strong>
+            <p>
+                {{ shift.cash_variance|default:"—" }}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Security Check
+    </h2>
+
+
+    {% if security_check %}
+
+        <div class="detail-grid">
+
+            <div>
+                <strong>Unknown Device Present</strong>
+                <p>
+                    {{ security_check.is_unknown_device_present|yesno:"Yes,No" }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Unusual Behaviour</strong>
+                <p>
+                    {{ security_check.is_unusual_behavior_observed|yesno:"Yes,No" }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Physically Secure</strong>
+                <p>
+                    {{ security_check.is_physically_secure|yesno:"Yes,No" }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Credentials Secure</strong>
+                <p>
+                    {{ security_check.is_credentials_secure|yesno:"Yes,No" }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Suspicious Surroundings</strong>
+                <p>
+                    {{ security_check.is_suspicious_surroundings|yesno:"Yes,No" }}
+                </p>
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        {% if security_check.result == "Suspicious" %}
+
+            <span class="badge badge-danger">
+                SUSPICIOUS
+            </span>
+
+        {% else %}
+
+            <span class="badge badge-success">
+                NORMAL
+            </span>
+
+        {% endif %}
+
+
+        {% if security_check.comments %}
+
+            <p class="section-spacing">
+                <strong>Comments:</strong>
+                {{ security_check.comments }}
+            </p>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <p>
+            Security check not completed.
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Shift Handover
+    </h2>
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>Receiving Employee</strong>
+            <p>
+
+                {% if shift.handed_over_to %}
+
+                    {{ shift.handed_over_to.staff_no }}
+                    -
+                    {{ shift.handed_over_to.full_name }}
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </p>
+        </div>
+
+        <div>
+            <strong>Handover Time</strong>
+            <p>
+                {{ shift.handover_time|default:"—" }}
+            </p>
+        </div>
+
+    </div>
+
+
+    {% if shift.handover_notes %}
+
+        <br>
+
+        <strong>
+            Handover Notes
+        </strong>
+
+        <p>
+            {{ shift.handover_notes }}
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'pos_security:admin_list' %}"
+        class="btn btn-secondary"
+    >
+        Back
+    </a>
+
+</div>
+
+
+{% endblock %}

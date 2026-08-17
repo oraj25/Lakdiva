@@ -1,0 +1,84 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+Start POS Shift | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_pos %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Start POS Shift
+    </h1>
+
+    <p class="page-description">
+        Select the terminal you are using and
+        enter the opening cash amount.
+    </p>
+
+</div>
+
+
+<div class="panel form-panel">
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% for error in field.errors %}
+
+                    <div class="field-error">
+                        {{ error }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Start Shift
+            </button>
+
+            <a
+                href="{% url 'pos_security:employee_list' %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

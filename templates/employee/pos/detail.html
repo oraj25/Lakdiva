@@ -1,0 +1,346 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+POS Shift | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_pos %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        POS Shift #{{ shift.shift_id }}
+    </h1>
+
+    <p class="page-description">
+        {{ shift.pos.terminal_code }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Opening Cash
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.opening_cash }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Cash In
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.cash_in }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Cash Out
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.cash_out }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Expected Cash
+        </div>
+
+        <div class="card-value small-value">
+            {{ shift.expected_cash }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Shift Information
+    </h2>
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>POS Terminal</strong>
+            <p>
+                {{ shift.pos.terminal_code }}
+            </p>
+        </div>
+
+        <div>
+            <strong>Shift Start</strong>
+            <p>
+                {{ shift.shift_start }}
+            </p>
+        </div>
+
+        <div>
+            <strong>Shift End</strong>
+            <p>
+                {{ shift.shift_end|default:"—" }}
+            </p>
+        </div>
+
+        <div>
+            <strong>Status</strong>
+            <p>
+                {{ shift.status }}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        POS Security Check
+    </h2>
+
+
+    {% if security_check %}
+
+        {% if security_check.result == "Normal" %}
+
+            <span class="badge badge-success">
+                Normal
+            </span>
+
+        {% else %}
+
+            <span class="badge badge-danger">
+                Suspicious
+            </span>
+
+        {% endif %}
+
+
+        <p class="section-spacing">
+            Checked:
+            {{ security_check.checked_at }}
+        </p>
+
+
+        {% if security_check.result == "Suspicious" %}
+
+            <div class="security-warning">
+
+                <strong>
+                    Security concern identified.
+                </strong>
+
+                <p>
+                    This shift should be linked
+                    to an incident report.
+                    Incident reporting will be
+                    connected in Step 11.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if shift.status == "Open" %}
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'pos_security:employee_security_check' shift.shift_id %}"
+                    class="btn btn-secondary"
+                >
+                    Update Security Check
+                </a>
+
+            </div>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <p>
+            Security check has not been completed.
+        </p>
+
+
+        {% if shift.status == "Open" %}
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'pos_security:employee_security_check' shift.shift_id %}"
+                    class="btn btn-primary"
+                >
+                    Complete Security Check
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    {% endif %}
+
+</div>
+
+
+{% if shift.status == "Open" %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Shift Actions
+        </h2>
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'pos_security:employee_cash_update' shift.shift_id %}"
+                class="btn btn-secondary"
+            >
+                Update Cash In / Out
+            </a>
+
+            <a
+                href="{% url 'pos_security:employee_security_check' shift.shift_id %}"
+                class="btn btn-secondary"
+            >
+                Security Check
+            </a>
+
+            <a
+                href="{% url 'pos_security:employee_shift_close' shift.shift_id %}"
+                class="btn btn-primary"
+            >
+                End Shift & Handover
+            </a>
+
+        </div>
+
+    </div>
+
+{% else %}
+
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Shift Closing
+        </h2>
+
+        <div class="detail-grid">
+
+            <div>
+                <strong>Closing Cash</strong>
+                <p>
+                    {{ shift.closing_cash }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Expected Cash</strong>
+                <p>
+                    {{ shift.expected_cash }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Cash Variance</strong>
+
+                <p>
+                    {{ shift.cash_variance }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Handed Over To</strong>
+
+                <p>
+                    {% if shift.handed_over_to %}
+
+                        {{ shift.handed_over_to.staff_no }}
+                        -
+                        {{ shift.handed_over_to.full_name }}
+
+                    {% else %}
+
+                        —
+
+                    {% endif %}
+                </p>
+
+            </div>
+
+            <div>
+                <strong>Handover Time</strong>
+                <p>
+                    {{ shift.handover_time|default:"—" }}
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if shift.handover_notes %}
+
+            <hr>
+
+            <strong>Handover Notes</strong>
+
+            <p>
+                {{ shift.handover_notes }}
+            </p>
+
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'pos_security:employee_list' %}"
+        class="btn btn-secondary"
+    >
+        Back
+    </a>
+
+</div>
+
+
+{% endblock %}

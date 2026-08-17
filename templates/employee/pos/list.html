@@ -1,0 +1,208 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+POS Shift & Security Check | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_pos %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        POS Shift & Security Check
+    </h1>
+
+    <p class="page-description">
+        Record your POS shift, cash information,
+        security check and shift handover.
+    </p>
+
+</div>
+
+
+{% if open_shift %}
+
+    <div class="panel active-shift-panel">
+
+        <h2 class="panel-title">
+            Active Shift
+        </h2>
+
+        <div class="detail-grid">
+
+            <div>
+                <strong>POS Terminal</strong>
+                <p>
+                    {{ open_shift.pos.terminal_code }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Started</strong>
+                <p>
+                    {{ open_shift.shift_start }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Opening Cash</strong>
+                <p>
+                    {{ open_shift.opening_cash }}
+                </p>
+            </div>
+
+            <div>
+                <strong>Status</strong>
+                <p>
+                    Open
+                </p>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'pos_security:employee_detail' open_shift.shift_id %}"
+                class="btn btn-primary"
+            >
+                Continue Shift
+            </a>
+
+        </div>
+
+    </div>
+
+{% else %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Start POS Shift
+        </h2>
+
+        <p>
+            You currently have no active POS shift.
+        </p>
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'pos_security:employee_shift_start' %}"
+                class="btn btn-primary"
+            >
+                Start New Shift
+            </a>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Recent Shifts
+    </h2>
+
+
+    {% if recent_shifts %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+                    <tr>
+                        <th>Shift</th>
+                        <th>POS</th>
+                        <th>Started</th>
+                        <th>Status</th>
+                        <th>Variance</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for shift in recent_shifts %}
+
+                        <tr>
+
+                            <td>
+                                #{{ shift.shift_id }}
+                            </td>
+
+                            <td>
+                                {{ shift.pos.terminal_code }}
+                            </td>
+
+                            <td>
+                                {{ shift.shift_start }}
+                            </td>
+
+                            <td>
+
+                                {% if shift.status == "Open" %}
+
+                                    <span class="badge badge-warning">
+                                        Open
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-success">
+                                        Completed
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ shift.cash_variance|default:"—" }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'pos_security:employee_detail' shift.shift_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            No POS shift records yet.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}
