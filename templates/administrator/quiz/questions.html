@@ -1,0 +1,247 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Quiz Management | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Quiz Management
+    </h1>
+
+    <p class="page-description">
+        {{ training.title }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Questions
+        </div>
+
+        <div class="card-value">
+            {{ questions.count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Total Marks
+        </div>
+
+        <div class="card-value">
+            {{ total_marks }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Pass Mark
+        </div>
+
+        <div class="card-value">
+            {{ pass_percentage }}%
+        </div>
+
+    </div>
+
+</div>
+
+
+{% if locked %}
+
+    <div class="message warning">
+
+        Quiz questions are locked because
+        employees have already submitted
+        quiz attempts.
+
+    </div>
+
+{% endif %}
+
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <h2 class="panel-title">
+            Quiz Questions
+        </h2>
+
+
+        {% if not locked %}
+
+            <a
+                href="{% url 'training:admin_quiz_question_create' training.training_id %}"
+                class="btn btn-primary"
+            >
+                + Add Question
+            </a>
+
+        {% endif %}
+
+    </div>
+
+
+    {% if questions %}
+
+        {% for question in questions %}
+
+            <div class="quiz-admin-question">
+
+                <div class="quiz-question-header">
+
+                    <h3>
+                        Question {{ forloop.counter }}
+                    </h3>
+
+                    <span class="badge badge-neutral">
+                        {{ question.marks }}
+                        mark{{ question.marks|pluralize }}
+                    </span>
+
+                </div>
+
+
+                <p class="quiz-question-text">
+
+                    {{ question.question_text }}
+
+                </p>
+
+
+                <div class="quiz-options-preview">
+
+                    <p>
+                        A. {{ question.option_a }}
+                    </p>
+
+                    <p>
+                        B. {{ question.option_b }}
+                    </p>
+
+                    {% if question.option_c %}
+
+                        <p>
+                            C. {{ question.option_c }}
+                        </p>
+
+                    {% endif %}
+
+                    {% if question.option_d %}
+
+                        <p>
+                            D. {{ question.option_d }}
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <p class="correct-answer">
+
+                    <strong>
+                        Correct Answer:
+                    </strong>
+
+                    {{ question.correct_option }}
+
+                </p>
+
+
+                {% if not locked %}
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{% url 'training:admin_quiz_question_edit' question.question_id %}"
+                            class="btn btn-secondary"
+                        >
+                            Edit
+                        </a>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'training:admin_quiz_question_delete' question.question_id %}"
+                            class="inline-form"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-secondary"
+                                onclick="return confirm('Delete this quiz question?')"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No quiz questions have been
+            created yet.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'training:admin_quiz_results' training.training_id %}"
+        class="btn btn-primary"
+    >
+        View Quiz Results
+    </a>
+
+    <a
+        href="{% url 'training:admin_detail' training.training_id %}"
+        class="btn btn-secondary"
+    >
+        Back to Training
+    </a>
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,361 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+{{ training.title }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ training.title }}
+    </h1>
+
+    <p class="page-description">
+        {{ training.topic }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Total Assigned
+        </div>
+
+        <div class="card-value">
+            {{ total_assigned }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Assigned
+        </div>
+
+        <div class="card-value">
+            {{ assigned_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            In Progress
+        </div>
+
+        <div class="card-value">
+            {{ in_progress_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Completed
+        </div>
+
+        <div class="card-value">
+            {{ completed_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Training Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>Topic</strong>
+
+            <p>
+                {{ training.topic }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Status</strong>
+
+            <p>
+                {{ training.status }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Created By</strong>
+
+            <p>
+                {{ training.created_by.full_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Created At</strong>
+
+            <p>
+                {{ training.created_at }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if training.description %}
+
+        <hr>
+
+        <p>
+            {{ training.description }}
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Training Content
+    </h2>
+
+    <div class="training-content">
+
+        {{ training.content|linebreaks }}
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Actions
+    </h2>
+
+
+    <div class="form-actions">
+
+
+        {% if training.status == "Draft" %}
+
+            <a
+                href="{% url 'training:admin_edit' training.training_id %}"
+                class="btn btn-secondary"
+            >
+                Edit Draft
+            </a>
+
+
+            <form
+                method="post"
+                action="{% url 'training:admin_publish' training.training_id %}"
+                class="inline-form"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    onclick="return confirm('Publish this training module?')"
+                >
+                    Publish Training
+                </button>
+
+            </form>
+
+        {% endif %}
+
+
+        {% if training.status == "Published" %}
+
+            <a
+                href="{% url 'training:admin_assign' training.training_id %}"
+                class="btn btn-primary"
+            >
+                Assign Training
+            </a>
+
+
+            <form
+                method="post"
+                action="{% url 'training:admin_archive' training.training_id %}"
+                class="inline-form"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-secondary"
+                    onclick="return confirm('Archive this training module?')"
+                >
+                    Archive
+                </button>
+
+            </form>
+
+        {% endif %}
+
+        <a
+            href="{% url 'training:admin_quiz_questions' training.training_id %}"
+            class="btn btn-primary"
+        >
+            Manage Quiz
+        </a>
+
+        <a
+            href="{% url 'training:admin_quiz_results' training.training_id %}"
+            class="btn btn-secondary"
+        >
+            Quiz Results
+        </a>
+
+
+        <a
+            href="{% url 'training:admin_list' %}"
+            class="btn btn-secondary"
+        >
+            Back
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Employee Assignments
+    </h2>
+
+
+    {% if assignments %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Staff No</th>
+                        <th>Employee</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Completed</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for assignment in assignments %}
+
+                        <tr>
+
+                            <td>
+                                {{ assignment.user.staff_no }}
+                            </td>
+
+                            <td>
+                                {{ assignment.user.full_name }}
+                            </td>
+
+                            <td>
+
+                                {% if assignment.status == "Completed" %}
+
+                                    <span class="badge badge-success">
+                                        Completed
+                                    </span>
+
+                                {% elif assignment.status == "In Progress" %}
+
+                                    <span class="badge badge-warning">
+                                        In Progress
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        Assigned
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ assignment.due_date|default:"—" }}
+                            </td>
+
+                            <td>
+                                {{ assignment.completed_at|default:"—" }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            This training has not been
+            assigned to anyone yet.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

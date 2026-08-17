@@ -26,6 +26,10 @@ from policies.models import (
     PolicyAcknowledgement,
 )
 
+from training.models import (
+    EmployeeTraining,
+)
+
 # =========================================================
 # HELPER FUNCTIONS
 # =========================================================
@@ -241,6 +245,10 @@ def logout_view(request):
 @role_required(Role.EMPLOYEE)
 def employee_dashboard(request):
 
+    # -----------------------------------------------------
+    # POLICY COUNT
+    # -----------------------------------------------------
+
     published_policies = (
         Policy.objects.filter(
             status=(
@@ -274,6 +282,31 @@ def employee_dashboard(request):
         0,
     )
 
+
+    # -----------------------------------------------------
+    # TRAINING COUNT
+    # -----------------------------------------------------
+
+    pending_training_count = (
+        EmployeeTraining.objects
+        .filter(
+            user=request.user
+        )
+        .exclude(
+            status=(
+                EmployeeTraining
+                .Status
+                .COMPLETED
+            )
+        )
+        .count()
+    )
+
+
+    # -----------------------------------------------------
+    # DASHBOARD
+    # -----------------------------------------------------
+
     return render(
         request,
         "employee/dashboard.html",
@@ -281,10 +314,12 @@ def employee_dashboard(request):
             "pending_policy_count": (
                 pending_policy_count
             ),
+
+            "pending_training_count": (
+                pending_training_count
+            ),
         },
     )
-
-
 # =========================================================
 # ADMINISTRATOR DASHBOARD
 # =========================================================

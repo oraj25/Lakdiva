@@ -1,0 +1,228 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Quiz Results | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Quiz Results
+    </h1>
+
+    <p class="page-description">
+        {{ training.title }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Total Attempts
+        </div>
+
+        <div class="card-value">
+            {{ total_attempts }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Passed Attempts
+        </div>
+
+        <div class="card-value">
+            {{ passed_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Failed Attempts
+        </div>
+
+        <div class="card-value">
+            {{ failed_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Average Score
+        </div>
+
+        <div class="card-value">
+
+            {% if average_percentage %}
+
+                {{ average_percentage|floatformat:1 }}%
+
+            {% else %}
+
+                —
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Employees Below Pass Mark
+        </div>
+
+        <div class="card-value">
+            {{ low_performance_employees }}
+        </div>
+
+        <div class="card-note">
+            Required pass mark:
+            {{ pass_percentage }}%
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Assessment Attempts
+    </h2>
+
+
+    {% if attempts %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Employee</th>
+                        <th>Staff No.</th>
+                        <th>Attempt</th>
+                        <th>Score</th>
+                        <th>Result</th>
+                        <th>Completed</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for attempt in attempts %}
+
+                        <tr>
+
+                            <td>
+                                {{ attempt.assignment.user.full_name }}
+                            </td>
+
+                            <td>
+                                {{ attempt.assignment.user.staff_no }}
+                            </td>
+
+                            <td>
+                                {{ attempt.attempt_number }}
+                            </td>
+
+                            <td>
+                                {{ attempt.percentage }}%
+                            </td>
+
+                            <td>
+
+                                {% if attempt.passed %}
+
+                                    <span class="badge badge-success">
+                                        PASS
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-danger">
+                                        LOW PERFORMANCE
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ attempt.completed_at }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No employees have submitted
+            this quiz yet.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'training:admin_quiz_questions' training.training_id %}"
+        class="btn btn-secondary"
+    >
+        Quiz Questions
+    </a>
+
+    <a
+        href="{% url 'training:admin_detail' training.training_id %}"
+        class="btn btn-secondary"
+    >
+        Back to Training
+    </a>
+
+</div>
+
+
+{% endblock %}

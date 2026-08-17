@@ -1,0 +1,186 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+Training | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Security Training
+    </h1>
+
+    <p class="page-description">
+        Complete your assigned security-awareness
+        training modules.
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Assigned
+        </div>
+
+        <div class="card-value">
+            {{ assigned_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            In Progress
+        </div>
+
+        <div class="card-value">
+            {{ in_progress_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Completed
+        </div>
+
+        <div class="card-value">
+            {{ completed_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="training-grid">
+
+
+    {% for assignment in assignments %}
+
+        <div class="training-card">
+
+            <div class="training-card-header">
+
+                <div>
+
+                    <h3>
+                        {{ assignment.training.title }}
+                    </h3>
+
+                    <p>
+                        {{ assignment.training.topic }}
+                    </p>
+
+                </div>
+
+
+                {% if assignment.status == "Completed" %}
+
+                    <span class="badge badge-success">
+                        Completed
+                    </span>
+
+                {% elif assignment.status == "In Progress" %}
+
+                    <span class="badge badge-warning">
+                        In Progress
+                    </span>
+
+                {% else %}
+
+                    <span class="badge badge-neutral">
+                        Assigned
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <p class="training-description">
+
+                {{ assignment.training.description|default:"Security awareness training module." }}
+
+            </p>
+
+
+            <div class="training-meta">
+
+                <p>
+                    <strong>Assigned:</strong>
+
+                    {{ assignment.assigned_at|date:"d M Y" }}
+                </p>
+
+
+                <p>
+                    <strong>Due:</strong>
+
+                    {{ assignment.due_date|default:"No due date" }}
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'training:employee_detail' assignment.employee_training_id %}"
+                class="btn btn-primary"
+            >
+
+                {% if assignment.status == "Completed" %}
+
+                    Review Training
+
+                {% elif assignment.status == "In Progress" %}
+
+                    Continue Training
+
+                {% else %}
+
+                    View Training
+
+                {% endif %}
+
+            </a>
+
+        </div>
+
+    {% empty %}
+
+        <div class="panel">
+
+            <div class="empty-state">
+
+                No training has been
+                assigned to you.
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+
+</div>
+
+
+{% endblock %}

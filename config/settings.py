@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "accounts",
     "auditlog",
     "policies",
+    "training",
 ]
 
 
@@ -267,3 +268,9 @@ CSRF_COOKIE_SECURE = not DEBUG
 # =========================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# =========================================================
+# QUIZ SETTINGS
+# =========================================================
+
+QUIZ_PASS_PERCENTAGE = 60

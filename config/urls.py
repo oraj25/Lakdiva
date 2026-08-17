@@ -8,13 +8,13 @@ from django.urls import (
 
 urlpatterns = [
 
-    # Django Admin
+    # Django development admin
     path(
         "admin/",
         admin.site.urls,
     ),
 
-    # Authentication / dashboards
+    # Authentication + dashboards
     path(
         "",
         include(
@@ -27,6 +27,14 @@ urlpatterns = [
         "",
         include(
             "policies.urls"
+        ),
+    ),
+
+    # Security Training
+    path(
+        "",
+        include(
+            "training.urls"
         ),
     ),
 ]

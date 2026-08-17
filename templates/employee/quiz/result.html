@@ -1,0 +1,209 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+Quiz Result | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Quiz Result
+    </h1>
+
+    <p class="page-description">
+        {{ training.title }}
+    </p>
+
+</div>
+
+
+<div class="quiz-result-box">
+
+    {% if attempt.passed %}
+
+        <div class="result-icon">
+            ✓
+        </div>
+
+        <h2 class="result-success">
+            PASS
+        </h2>
+
+        <p>
+            You successfully passed
+            this security assessment.
+        </p>
+
+    {% else %}
+
+        <div class="result-icon">
+            !
+        </div>
+
+        <h2 class="result-failed">
+            NOT PASSED
+        </h2>
+
+        <p>
+            Review the training material
+            and try the quiz again.
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Attempt
+        </div>
+
+        <div class="card-value">
+            {{ attempt.attempt_number }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Marks
+        </div>
+
+        <div class="card-value">
+            {{ attempt.score }}/{{ total_marks }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Percentage
+        </div>
+
+        <div class="card-value">
+            {{ attempt.percentage }}%
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Required
+        </div>
+
+        <div class="card-value">
+            {{ pass_percentage }}%
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Assessment Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Started
+            </strong>
+
+            <p>
+                {{ attempt.started_at }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Completed
+            </strong>
+
+            <p>
+                {{ attempt.completed_at }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Result
+            </strong>
+
+            <p>
+
+                {% if attempt.passed %}
+
+                    Passed
+
+                {% else %}
+
+                    Not Passed
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="form-actions">
+
+    {% if not attempt.passed %}
+
+        <a
+            href="{% url 'training:employee_quiz_take' attempt.assignment.employee_training_id %}"
+            class="btn btn-primary"
+        >
+            Retake Quiz
+        </a>
+
+    {% endif %}
+
+
+    <a
+        href="{% url 'training:employee_detail' attempt.assignment.employee_training_id %}"
+        class="btn btn-secondary"
+    >
+        Back to Training
+    </a>
+
+</div>
+
+
+{% endblock %}

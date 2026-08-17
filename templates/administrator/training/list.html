@@ -1,0 +1,221 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Training Management | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Training Management
+    </h1>
+
+    <p class="page-description">
+        Create, publish and assign
+        security-awareness training.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <form
+            method="get"
+            class="filter-form"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search training..."
+                value="{{ search }}"
+            >
+
+
+            <select
+                name="topic"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Topics
+                </option>
+
+                {% for value, label in topics %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_topic == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <select
+                name="status"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Statuses
+                </option>
+
+                {% for value, label in statuses %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_status == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="btn btn-secondary"
+            >
+                Filter
+            </button>
+
+        </form>
+
+
+        <a
+            href="{% url 'training:admin_create' %}"
+            class="btn btn-primary"
+        >
+            + Create Training
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Training Modules
+    </h2>
+
+
+    {% if training_modules %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Training</th>
+                        <th>Topic</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for training in training_modules %}
+
+                        <tr>
+
+                            <td>
+                                {{ training.title }}
+                            </td>
+
+                            <td>
+                                {{ training.topic }}
+                            </td>
+
+                            <td>
+
+                                {% if training.status == "Published" %}
+
+                                    <span class="badge badge-success">
+                                        Published
+                                    </span>
+
+                                {% elif training.status == "Draft" %}
+
+                                    <span class="badge badge-warning">
+                                        Draft
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        Archived
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ training.created_by.full_name }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'training:admin_detail' training.training_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            No training modules found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

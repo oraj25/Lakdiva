@@ -1,0 +1,134 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Assign Training | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Assign Training
+    </h1>
+
+    <p class="page-description">
+        {{ training.title }}
+    </p>
+
+</div>
+
+
+<div class="panel form-panel">
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+            <div class="message error">
+
+                {{ form.non_field_errors }}
+
+            </div>
+
+        {% endif %}
+
+
+        <div class="form-group">
+
+            <label class="checkbox-row">
+
+                {{ form.assign_to_all }}
+
+                <span>
+                    Assign to all active employees
+                </span>
+
+            </label>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Select Individual Employees
+            </label>
+
+
+            <div class="employee-selection">
+
+                {{ form.employees }}
+
+            </div>
+
+
+            {% for error in form.employees.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.due_date.id_for_label }}"
+            >
+                Due Date
+            </label>
+
+            {{ form.due_date }}
+
+
+            {% for error in form.due_date.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Assign Training
+            </button>
+
+
+            <a
+                href="{% url 'training:admin_detail' training.training_id %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

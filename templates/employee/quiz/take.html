@@ -1,0 +1,258 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+Quiz | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Security Quiz
+    </h1>
+
+    <p class="page-description">
+        {{ training.title }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Questions
+        </div>
+
+        <div class="card-value">
+            {{ questions|length }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Total Marks
+        </div>
+
+        <div class="card-value">
+            {{ total_marks }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Pass Mark
+        </div>
+
+        <div class="card-value">
+            {{ pass_percentage }}%
+        </div>
+
+    </div>
+
+
+    {% if attempt_number %}
+
+        <div class="card">
+
+            <div class="card-label">
+                Attempt
+            </div>
+
+            <div class="card-value">
+                {{ attempt_number }}
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="panel">
+
+    <div class="quiz-instructions">
+
+        <strong>
+            Instructions
+        </strong>
+
+        <p>
+            Select one answer for every question
+            and submit the quiz when finished.
+        </p>
+
+    </div>
+
+</div>
+
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="quiz_token"
+        value="{{ quiz_token }}"
+    >
+
+
+    {% for question in questions %}
+
+        <div class="panel quiz-question">
+
+            <div class="quiz-question-header">
+
+                <h2 class="panel-title">
+
+                    Question {{ forloop.counter }}
+
+                </h2>
+
+
+                <span class="badge badge-neutral">
+
+                    {{ question.marks }}
+                    mark{{ question.marks|pluralize }}
+
+                </span>
+
+            </div>
+
+
+            <p class="quiz-question-text">
+
+                {{ question.question_text }}
+
+            </p>
+
+
+            <div class="quiz-answer-options">
+
+
+                <label class="quiz-option">
+
+                    <input
+                        type="radio"
+                        name="question_{{ question.question_id }}"
+                        value="A"
+                        required
+                    >
+
+                    <span>
+                        A. {{ question.option_a }}
+                    </span>
+
+                </label>
+
+
+                <label class="quiz-option">
+
+                    <input
+                        type="radio"
+                        name="question_{{ question.question_id }}"
+                        value="B"
+                        required
+                    >
+
+                    <span>
+                        B. {{ question.option_b }}
+                    </span>
+
+                </label>
+
+
+                {% if question.option_c %}
+
+                    <label class="quiz-option">
+
+                        <input
+                            type="radio"
+                            name="question_{{ question.question_id }}"
+                            value="C"
+                            required
+                        >
+
+                        <span>
+                            C. {{ question.option_c }}
+                        </span>
+
+                    </label>
+
+                {% endif %}
+
+
+                {% if question.option_d %}
+
+                    <label class="quiz-option">
+
+                        <input
+                            type="radio"
+                            name="question_{{ question.question_id }}"
+                            value="D"
+                            required
+                        >
+
+                        <span>
+                            D. {{ question.option_d }}
+                        </span>
+
+                    </label>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+
+    <div class="panel">
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Submit your quiz answers?')"
+            >
+                Submit Quiz
+            </button>
+
+
+            <a
+                href="{% url 'training:employee_detail' assignment.employee_training_id %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+{% endblock %}

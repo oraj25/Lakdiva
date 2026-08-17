@@ -1,0 +1,324 @@
+{% extends "employee/base_employee.html" %}
+
+{% block title %}
+{{ training.title }} | Lakdiva SecurePOS
+{% endblock %}
+
+{% block nav_training %}
+active
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ training.title }}
+    </h1>
+
+    <p class="page-description">
+        {{ training.topic }}
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>Status</strong>
+
+            <p>
+                {{ assignment.status }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Assigned</strong>
+
+            <p>
+                {{ assignment.assigned_at }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Due Date</strong>
+
+            <p>
+                {{ assignment.due_date|default:"No due date" }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Progress</strong>
+
+            <p>
+                {{ assignment.progress_percent }}%
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+{% if assignment.status == "Assigned" %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Training Overview
+        </h2>
+
+
+        {% if training.description %}
+
+            <p>
+                {{ training.description }}
+            </p>
+
+        {% endif %}
+
+
+        <form
+            method="post"
+            action="{% url 'training:employee_start' assignment.employee_training_id %}"
+        >
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Start Training
+            </button>
+
+        </form>
+
+    </div>
+
+
+{% else %}
+
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Training Material
+        </h2>
+
+
+        <div class="training-content">
+
+            {{ training.content|linebreaks }}
+
+        </div>
+
+    </div>
+
+
+    {% if assignment.status == "In Progress" %}
+
+        <div class="panel">
+
+            <h2 class="panel-title">
+                Complete Training
+            </h2>
+
+
+            <p>
+                When you have finished reading
+                and understanding the training
+                material, mark it as completed.
+            </p>
+
+
+            <form
+                method="post"
+                action="{% url 'training:employee_complete' assignment.employee_training_id %}"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    onclick="return confirm('Confirm that you have completed this training?')"
+                >
+                    Mark Training as Completed
+                </button>
+
+            </form>
+
+        </div>
+
+    {% endif %}
+
+
+    {% if assignment.status == "Completed" %}
+
+        <div class="panel acknowledgement-success">
+
+            <h2 class="panel-title">
+                Training Completed
+            </h2>
+
+
+            <p>
+
+                Completed on:
+
+                <strong>
+                    {{ assignment.completed_at }}
+                </strong>
+
+            </p>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h2 class="panel-title">
+                Security Assessment
+            </h2>
+
+
+            {% if training.quiz_questions.count > 0 %}
+
+                <p>
+
+                    This training contains a
+                    security assessment.
+
+                    Required pass mark:
+                    <strong>60%</strong>
+
+                </p>
+
+
+                <div class="form-actions">
+
+                    <a
+                        href="{% url 'training:employee_quiz_take' assignment.employee_training_id %}"
+                        class="btn btn-primary"
+                    >
+                        Take Quiz
+                    </a>
+
+                </div>
+
+
+                {% if assignment.quiz_attempts.all %}
+
+                    <hr>
+
+
+                    <h3>
+                        Previous Attempts
+                    </h3>
+
+
+                    <div class="table-container">
+
+                        <table class="app-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Attempt</th>
+                                    <th>Score</th>
+                                    <th>Result</th>
+                                    <th>Date</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for attempt in assignment.quiz_attempts.all %}
+
+                                    <tr>
+
+                                        <td>
+                                            {{ attempt.attempt_number }}
+                                        </td>
+
+
+                                        <td>
+                                            {{ attempt.percentage }}%
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if attempt.passed %}
+
+                                                <span class="badge badge-success">
+                                                    PASS
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="badge badge-danger">
+                                                    NOT PASSED
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+                                            {{ attempt.completed_at }}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% endif %}
+
+
+            {% else %}
+
+                <p>
+                    No quiz is currently available
+                    for this training module.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'training:employee_list' %}"
+        class="btn btn-secondary"
+    >
+        Back to Training
+    </a>
+
+</div>
+
+
+{% endblock %}
