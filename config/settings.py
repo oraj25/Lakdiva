@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     "policies",
     "training",
     "pos_security",
+    "notifications",
+    "incidents",
 ]
 
 
@@ -275,3 +277,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # =========================================================
 
 QUIZ_PASS_PERCENTAGE = 60
+
+# =========================================================
+# MEDIA / SECURE UPLOAD STORAGE
+# =========================================================
+
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = BASE_DIR / "media"

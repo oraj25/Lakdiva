@@ -1,0 +1,286 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Incident Management | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incidents %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Incident Management
+    </h1>
+
+    <p class="page-description">
+        Review reported security incidents.
+        Risk assessment and investigation controls
+        will be added in the next stages.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <form
+        method="get"
+        class="filter-form"
+    >
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Reference, employee or title..."
+            value="{{ search }}"
+        >
+
+
+        <select
+            name="category"
+            class="form-control"
+        >
+
+            <option value="">
+                All Categories
+            </option>
+
+            {% for category in categories %}
+
+                <option
+                    value="{{ category.category_id }}"
+                    {% if selected_category == category.category_id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ category.category_name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <select
+            name="status"
+            class="form-control"
+        >
+
+            <option value="">
+                All Statuses
+            </option>
+
+            {% for value, label in statuses %}
+
+                <option
+                    value="{{ value }}"
+                    {% if selected_status == value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ label }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button
+            type="submit"
+            class="btn btn-secondary"
+        >
+            Filter
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="panel">
+
+    {% if incidents %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Reference</th>
+                        <th>Employee</th>
+                        <th>Category</th>
+                        <th>POS</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                        <th>Reported</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for incident in incidents %}
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    {{ incident.incident_ref }}
+                                </strong>
+                            </td>
+
+
+                            <td>
+                                {{ incident.reported_by.staff_no }}
+                                -
+                                {{ incident.reported_by.full_name }}
+                            </td>
+
+
+                            <td>
+                                {{ incident.category.category_name }}
+                            </td>
+
+
+                            <td>
+
+                                {% if incident.pos %}
+
+                                    {{ incident.pos.terminal_code }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Risk -->
+
+                            <td>
+
+                                {% if incident.latest_risk_level == "HIGH" %}
+
+                                    <span class="badge badge-danger">
+                                        HIGH
+                                    </span>
+
+                                    <small>
+                                        {{ incident.latest_risk_score }}/12
+                                    </small>
+
+
+                                {% elif incident.latest_risk_level == "MEDIUM" %}
+
+                                    <span class="badge badge-warning">
+                                        MEDIUM
+                                    </span>
+
+                                    <small>
+                                        {{ incident.latest_risk_score }}/12
+                                    </small>
+
+
+                                {% elif incident.latest_risk_level == "LOW" %}
+
+                                    <span class="badge badge-success">
+                                        LOW
+                                    </span>
+
+                                    <small>
+                                        {{ incident.latest_risk_score }}/12
+                                    </small>
+
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        NOT ASSESSED
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Status -->
+
+                            <td>
+
+                                {% if incident.status == "NEW" %}
+
+                                    <span class="badge badge-danger">
+                                        NEW
+                                    </span>
+
+                                {% elif incident.status == "INVESTIGATING" %}
+
+                                    <span class="badge badge-warning">
+                                        INVESTIGATING
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-success">
+                                        RESOLVED
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+                                {{ incident.created_at }}
+                            </td>
+
+
+                            <td>
+
+                                <a
+                                    href="{% url 'incidents:admin_detail' incident.incident_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    Review
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            No incidents found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

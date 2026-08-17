@@ -1,0 +1,430 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Risk Assessment | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incidents %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Incident Risk Assessment
+    </h1>
+
+    <p class="page-description">
+        {{ incident.incident_ref }}
+        — {{ incident.title }}
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Risk Scoring Method
+    </h2>
+
+
+    <div class="table-container">
+
+        <table class="app-table">
+
+            <thead>
+
+                <tr>
+                    <th>Risk Factor</th>
+                    <th>Score</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        Customer data involved
+                    </td>
+                    <td>
+                        +3
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        POS terminal affected
+                    </td>
+                    <td>
+                        +3
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Unauthorized access
+                    </td>
+                    <td>
+                        +3
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Business operations affected
+                    </td>
+                    <td>
+                        +2
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Evidence available
+                    </td>
+                    <td>
+                        +1
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="risk-scale">
+
+        <div class="risk-scale-item">
+
+            <strong>0–4</strong>
+
+            <span class="badge badge-success">
+                LOW
+            </span>
+
+        </div>
+
+
+        <div class="risk-scale-item">
+
+            <strong>5–7</strong>
+
+            <span class="badge badge-warning">
+                MEDIUM
+            </span>
+
+        </div>
+
+
+        <div class="risk-scale-item">
+
+            <strong>8–12</strong>
+
+            <span class="badge badge-danger">
+                HIGH
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Incident Summary
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Category
+            </strong>
+
+            <p>
+                {{ incident.category.category_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Reported By
+            </strong>
+
+            <p>
+                {{ incident.reported_by.staff_no }}
+                -
+                {{ incident.reported_by.full_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                POS Terminal
+            </strong>
+
+            <p>
+
+                {% if incident.pos %}
+
+                    {{ incident.pos.terminal_code }}
+
+                {% else %}
+
+                    Not applicable
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Evidence Available
+            </strong>
+
+            <p>
+
+                {% if evidence_available %}
+
+                    Yes (+1)
+
+                {% else %}
+
+                    No (+0)
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <hr>
+
+
+    <strong>
+        Description
+    </strong>
+
+    <p class="section-spacing">
+        {{ incident.description }}
+    </p>
+
+</div>
+
+
+{% if previous_assessment %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Previous Assessment
+        </h2>
+
+
+        <div class="detail-grid">
+
+            <div>
+
+                <strong>
+                    Score
+                </strong>
+
+                <p>
+                    {{ previous_assessment.risk_score }}/12
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Risk Level
+                </strong>
+
+                <p>
+                    {{ previous_assessment.risk_level }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Assessed By
+                </strong>
+
+                <p>
+                    {{ previous_assessment.assessed_by.staff_no }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Assessment Date
+                </strong>
+
+                <p>
+                    {{ previous_assessment.assessed_at }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <p class="section-spacing">
+
+            Completing this form will create
+            a new assessment record.
+            The previous assessment will
+            remain in the history.
+
+        </p>
+
+    </div>
+
+{% endif %}
+
+
+<div class="panel form-panel">
+
+    <h2 class="panel-title">
+        Assessment Factors
+    </h2>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+            <div class="message error">
+
+                {{ form.non_field_errors }}
+
+            </div>
+
+        {% endif %}
+
+
+        {% for field in form %}
+
+            <div class="risk-question">
+
+                <label>
+                    {{ field.label }}
+                </label>
+
+
+                {{ field }}
+
+
+                {% for error in field.errors %}
+
+                    <div class="field-error">
+                        {{ error }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <div class="risk-auto-factor">
+
+            <strong>
+                Evidence Available
+            </strong>
+
+
+            {% if evidence_available %}
+
+                <span class="badge badge-success">
+                    YES (+1)
+                </span>
+
+                <p>
+                    Supporting evidence is attached
+                    to this incident.
+                </p>
+
+            {% else %}
+
+                <span class="badge badge-neutral">
+                    NO (+0)
+                </span>
+
+                <p>
+                    No supporting evidence is
+                    currently attached.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Calculate and save this incident risk assessment?')"
+            >
+                Calculate Risk
+            </button>
+
+
+            <a
+                href="{% url 'incidents:admin_detail' incident.incident_id %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

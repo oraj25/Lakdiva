@@ -26,6 +26,11 @@ from policies.models import (
     PolicyAcknowledgement,
 )
 
+from django.db.models import (
+    OuterRef,
+    Subquery,
+)
+
 from training.models import (
     EmployeeTraining,
 )
@@ -33,6 +38,16 @@ from training.models import (
 from pos_security.models import (
     POSShift,
 )
+
+from incidents.models import (
+    Incident,
+    IncidentRiskAssessment,
+)
+
+from notifications.models import (
+    Notification,
+)
+
 
 # =========================================================
 # HELPER FUNCTIONS
@@ -346,7 +361,107 @@ def employee_dashboard(request):
 @role_required(Role.ADMIN)
 def administrator_dashboard(request):
 
+    pending_incident_count = (
+        Incident.objects
+        .exclude(
+            status=(
+                Incident.Status.RESOLVED
+            )
+        )
+        .count()
+    )
+
+    # ---------------------------------------------------------
+    # LATEST RISK LEVEL FOR EACH INCIDENT
+    # ---------------------------------------------------------
+
+    latest_risk_query = (
+        IncidentRiskAssessment
+        .objects
+        .filter(
+            incident_id=OuterRef(
+                "pk"
+            )
+        )
+        .order_by(
+            "-assessed_at"
+        )
+        .values(
+            "risk_level"
+        )[:1]
+    )
+
+
+    # ---------------------------------------------------------
+    # HIGH-RISK OPEN INCIDENT COUNT
+    # ---------------------------------------------------------
+
+    high_risk_incident_count = (
+        Incident.objects
+        .exclude(
+            status=(
+                Incident.Status.RESOLVED
+            )
+        )
+        .annotate(
+            current_risk=(
+                Subquery(
+                    latest_risk_query
+                )
+            )
+        )
+        .filter(
+            current_risk=(
+                IncidentRiskAssessment
+                .RiskLevel
+                .HIGH
+            )
+        )
+        .count()
+    )
+
+    
+
+    unread_notification_count = (
+        Notification.objects
+        .filter(
+            user=request.user,
+            is_read=False,
+        )
+        .count()
+    )
+
+    recent_notifications = (
+        Notification.objects
+        .filter(
+            user=request.user,
+            is_read=False,
+        )
+        .order_by(
+            "-created_at"
+        )[:5]
+    )
+
     return render(
         request,
-        "administrator/dashboard.html",
+        (
+            "administrator/"
+            "dashboard.html"
+        ),
+        {
+            "pending_incident_count": (
+                pending_incident_count
+            ),
+
+            "unread_notification_count": (
+                unread_notification_count
+            ),
+
+            "recent_notifications": (
+                recent_notifications
+            ),
+            "high_risk_incident_count": (
+                high_risk_incident_count
+            ),
+        },
     )

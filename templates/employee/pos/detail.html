@@ -171,6 +171,17 @@ active
 
             </div>
 
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'incidents:employee_create' %}?shift={{ shift.shift_id }}"
+                    class="btn btn-primary"
+                >
+                    Report Security Incident
+                </a>
+            </div>
+
+
         {% endif %}
 
 

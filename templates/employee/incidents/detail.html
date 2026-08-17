@@ -1,0 +1,208 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+{{ incident.incident_ref }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incident %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ incident.incident_ref }}
+    </h1>
+
+    <p class="page-description">
+        {{ incident.title }}
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Incident Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>Status</strong>
+
+            <p>
+                {{ incident.get_status_display }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Category</strong>
+
+            <p>
+                {{ incident.category.category_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Reported</strong>
+
+            <p>
+                {{ incident.created_at }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Occurred</strong>
+
+            <p>
+                {{ incident.occurred_at|default:"Not specified" }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>POS Terminal</strong>
+
+            <p>
+
+                {% if incident.pos %}
+
+                    {{ incident.pos.terminal_code }}
+
+                {% else %}
+
+                    Not applicable
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>Related Shift</strong>
+
+            <p>
+
+                {% if incident.shift %}
+
+                    #{{ incident.shift.shift_id }}
+
+                {% else %}
+
+                    Not applicable
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Description
+    </h2>
+
+    <div class="incident-description">
+
+        {{ incident.description|linebreaks }}
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Supporting Evidence
+    </h2>
+
+
+    {% if incident.evidence_files.all %}
+
+        <div class="evidence-list">
+
+            {% for evidence in incident.evidence_files.all %}
+
+                <div class="evidence-item">
+
+                    <div>
+
+                        <strong>
+                            {{ evidence.file_type }}
+                        </strong>
+
+                        <p>
+                            {{ evidence.file.name }}
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        href="{% url 'incidents:evidence_download' evidence.evidence_id %}"
+                        class="btn btn-secondary"
+                    >
+                        Download
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p>
+            No evidence submitted.
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'incidents:employee_list' %}"
+        class="btn btn-secondary"
+    >
+        Back
+    </a>
+
+</div>
+
+
+{% endblock %}

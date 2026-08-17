@@ -1,0 +1,211 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+My Incidents | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incident %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        My Security Incidents
+    </h1>
+
+    <p class="page-description">
+        Report security concerns and track
+        the status of incidents you submitted.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <form
+            method="get"
+            class="filter-form"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Incident reference or title..."
+                value="{{ search }}"
+            >
+
+
+            <select
+                name="status"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Statuses
+                </option>
+
+
+                {% for value, label in statuses %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_status == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="btn btn-secondary"
+            >
+                Filter
+            </button>
+
+        </form>
+
+
+        <a
+            href="{% url 'incidents:employee_create' %}"
+            class="btn btn-primary"
+        >
+            + Report Incident
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    {% if incidents %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Reference</th>
+                        <th>Incident</th>
+                        <th>Category</th>
+                        <th>POS</th>
+                        <th>Status</th>
+                        <th>Reported</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for incident in incidents %}
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    {{ incident.incident_ref }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ incident.title }}
+                            </td>
+
+                            <td>
+                                {{ incident.category.category_name }}
+                            </td>
+
+                            <td>
+                                {% if incident.pos %}
+                                    {{ incident.pos.terminal_code }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+
+                                {% if incident.status == "NEW" %}
+
+                                    <span class="badge badge-warning">
+                                        NEW
+                                    </span>
+
+                                {% elif incident.status == "INVESTIGATING" %}
+
+                                    <span class="badge badge-warning">
+                                        INVESTIGATING
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-success">
+                                        RESOLVED
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ incident.created_at }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'incidents:employee_detail' incident.incident_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            You have not reported any
+            security incidents.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

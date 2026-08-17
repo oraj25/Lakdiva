@@ -64,7 +64,7 @@ active
         </div>
 
         <div class="card-value">
-            0
+            {{ pending_incident_count }}
         </div>
 
         <div class="card-note">
@@ -178,7 +178,7 @@ active
 
 
         <a
-            href="#"
+            href="{% url 'incidents:admin_list' %}"
             class="action-card"
         >
 
@@ -232,7 +232,46 @@ active
 
 </div>
 
+<div class="panel">
 
+    <h2 class="panel-title">
+        Security Alerts
+    </h2>
+
+
+    {% if recent_notifications %}
+
+        {% for notification in recent_notifications %}
+
+            <div class="security-alert">
+
+                <strong>
+                    {{ notification.title }}
+                </strong>
+
+                <p>
+                    {{ notification.message }}
+                </p>
+
+                <small>
+                    {{ notification.created_at }}
+                </small>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No unread security alerts.
+
+        </div>
+
+    {% endif %}
+
+</div>
 
 <!-- =====================================================
      RECENT ACTIVITY

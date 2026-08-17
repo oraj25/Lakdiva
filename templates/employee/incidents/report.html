@@ -1,0 +1,169 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+Report Incident | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incident %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Report Security Incident
+    </h1>
+
+    <p class="page-description">
+        Report suspicious activity, unauthorized
+        devices, account problems or other
+        security concerns.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="incident-guidance">
+
+        <strong>
+            Provide clear and accurate information.
+        </strong>
+
+        <p>
+            Do not include unnecessary customer
+            information or passwords in the report.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="panel form-panel">
+
+    <form
+        method="post"
+        enctype="multipart/form-data"
+    >
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+            <div class="message error">
+
+                {{ form.non_field_errors }}
+
+            </div>
+
+        {% endif %}
+
+
+        {% for field in form %}
+            {% if field.name != "evidence" %}
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ field.id_for_label }}"
+                    >
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+
+                    {% if field.name == "pos" %}
+
+                        <small class="form-help">
+                            Optional for non-POS incidents.
+                        </small>
+
+                    {% endif %}
+
+
+                    {% if field.name == "shift" %}
+
+                        <small class="form-help">
+                            Select the related shift
+                            only when applicable.
+                        </small>
+
+                    {% endif %}
+
+
+                    {% for error in field.errors %}
+
+                        <div class="field-error">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            {% endif %}
+
+        {% endfor %}
+
+
+        <div class="form-group">
+
+            <label>
+                Supporting Evidence
+            </label>
+
+            {{ form.evidence }}
+
+            <small class="form-help">
+                Optional. Maximum 3 files.
+                Each file must be 5 MB or smaller.
+                Allowed: JPG, PNG, PDF, TXT and LOG.
+            </small>
+
+
+            {% for error in form.evidence.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Submit this security incident?')"
+            >
+                Submit Incident
+            </button>
+
+
+            <a
+                href="{% url 'incidents:employee_list' %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

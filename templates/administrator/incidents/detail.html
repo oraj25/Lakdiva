@@ -1,0 +1,486 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+{{ incident.incident_ref }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incidents %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ incident.incident_ref }}
+    </h1>
+
+    <p class="page-description">
+        {{ incident.title }}
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Status
+        </div>
+
+        <div class="card-value small-value">
+            {{ incident.status }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Category
+        </div>
+
+        <div class="card-value small-value">
+            {{ incident.category.category_name }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            POS
+        </div>
+
+        <div class="card-value small-value">
+
+            {% if incident.pos %}
+                {{ incident.pos.terminal_code }}
+            {% else %}
+                —
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Incident Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+            <strong>Reported By</strong>
+            <p>
+                {{ incident.reported_by.staff_no }}
+                -
+                {{ incident.reported_by.full_name }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Reported At</strong>
+            <p>
+                {{ incident.created_at }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Occurred At</strong>
+            <p>
+                {{ incident.occurred_at|default:"Not specified" }}
+            </p>
+        </div>
+
+
+        <div>
+            <strong>Related Shift</strong>
+            <p>
+
+                {% if incident.shift %}
+                    #{{ incident.shift.shift_id }}
+                {% else %}
+                    —
+                {% endif %}
+
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Incident Description
+    </h2>
+
+    <div class="incident-description">
+        {{ incident.description|linebreaks }}
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Evidence
+    </h2>
+
+
+    {% for evidence in incident.evidence_files.all %}
+
+        <div class="evidence-item">
+
+            <div>
+
+                <strong>
+                    {{ evidence.file_type }}
+                </strong>
+
+                <p>
+                    {{ evidence.file.name }}
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'incidents:evidence_download' evidence.evidence_id %}"
+                class="btn btn-secondary"
+            >
+                Download
+            </a>
+
+        </div>
+
+    {% empty %}
+
+        <p>
+            No evidence submitted.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <h2 class="panel-title">
+            Risk Assessment
+        </h2>
+
+
+        <a
+            href="{% url 'incidents:admin_risk_assessment' incident.incident_id %}"
+            class="btn btn-primary"
+        >
+
+            {% if latest_risk %}
+
+                Reassess Risk
+
+            {% else %}
+
+                Assess Risk
+
+            {% endif %}
+
+        </a>
+
+    </div>
+
+
+    {% if latest_risk %}
+
+        <div class="risk-result">
+
+            {% if latest_risk.risk_level == "HIGH" %}
+
+                <div class="risk-result-high">
+
+                    <span class="risk-result-label">
+                        HIGH RISK
+                    </span>
+
+                    <strong class="risk-result-score">
+                        {{ latest_risk.risk_score }}/12
+                    </strong>
+
+                </div>
+
+            {% elif latest_risk.risk_level == "MEDIUM" %}
+
+                <div class="risk-result-medium">
+
+                    <span class="risk-result-label">
+                        MEDIUM RISK
+                    </span>
+
+                    <strong class="risk-result-score">
+                        {{ latest_risk.risk_score }}/12
+                    </strong>
+
+                </div>
+
+            {% else %}
+
+                <div class="risk-result-low">
+
+                    <span class="risk-result-label">
+                        LOW RISK
+                    </span>
+
+                    <strong class="risk-result-score">
+                        {{ latest_risk.risk_score }}/12
+                    </strong>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="detail-grid">
+
+            <div>
+
+                <strong>
+                    Customer Data Involved
+                </strong>
+
+                <p>
+                    {{ latest_risk.customer_data_involved|yesno:"Yes (+3),No (+0)" }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    POS Affected
+                </strong>
+
+                <p>
+                    {{ latest_risk.pos_affected|yesno:"Yes (+3),No (+0)" }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Unauthorized Access
+                </strong>
+
+                <p>
+                    {{ latest_risk.unauthorized_access|yesno:"Yes (+3),No (+0)" }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Business Impact
+                </strong>
+
+                <p>
+
+                    {% if latest_risk.business_impact == 2 %}
+
+                        Yes (+2)
+
+                    {% else %}
+
+                        No (+0)
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Evidence Available
+                </strong>
+
+                <p>
+                    {{ latest_risk.evidence_available|yesno:"Yes (+1),No (+0)" }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Assessed By
+                </strong>
+
+                <p>
+                    {{ latest_risk.assessed_by.staff_no }}
+                    -
+                    {{ latest_risk.assessed_by.full_name }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Assessed At
+                </strong>
+
+                <p>
+                    {{ latest_risk.assessed_at }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            This incident has not yet
+            been risk assessed.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% if risk_assessments %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Risk Assessment History
+        </h2>
+
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Administrator</th>
+                        <th>Score</th>
+                        <th>Risk Level</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for risk in risk_assessments %}
+
+                        <tr>
+
+                            <td>
+                                {{ risk.assessed_at }}
+                            </td>
+
+
+                            <td>
+                                {{ risk.assessed_by.staff_no }}
+                            </td>
+
+
+                            <td>
+                                {{ risk.risk_score }}/12
+                            </td>
+
+
+                            <td>
+
+                                {% if risk.risk_level == "HIGH" %}
+
+                                    <span class="badge badge-danger">
+                                        HIGH
+                                    </span>
+
+                                {% elif risk.risk_level == "MEDIUM" %}
+
+                                    <span class="badge badge-warning">
+                                        MEDIUM
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-success">
+                                        LOW
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'incidents:admin_list' %}"
+        class="btn btn-secondary"
+    >
+        Back
+    </a>
+
+</div>
+
+
+{% endblock %}
