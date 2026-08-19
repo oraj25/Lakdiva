@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import (
 )
 
 from django.db import transaction
+from django.utils import timezone
 
 from django.db.models import (
     OuterRef,
@@ -55,6 +56,7 @@ from pos_security.models import (
 from .forms import (
     IncidentReportForm,
     IncidentRiskAssessmentForm,
+    IncidentActionForm,
 )
 
 from .models import (
@@ -62,6 +64,7 @@ from .models import (
     IncidentCategory,
     IncidentEvidence,
     IncidentRiskAssessment,
+    IncidentAction,
 )
 
 
@@ -1023,3 +1026,241 @@ def admin_risk_assessment_create(
             ),
         },
     )
+
+# =========================================================
+# ADMIN - INCIDENT INVESTIGATION / ACTION
+# =========================================================
+
+@role_required(Role.ADMIN)
+def admin_incident_action(
+    request,
+    incident_id,
+):
+
+    incident = get_object_or_404(
+        Incident.objects
+        .select_related(
+            "reported_by",
+            "category",
+            "pos",
+            "shift",
+        ),
+        incident_id=incident_id,
+    )
+
+
+    # -----------------------------------------------------
+    # PREVENT ACTION ON RESOLVED INCIDENT
+    # -----------------------------------------------------
+
+    if (
+        incident.status
+        ==
+        Incident.Status.RESOLVED
+    ):
+
+        messages.warning(
+            request,
+            (
+                "This incident has already "
+                "been resolved."
+            ),
+        )
+
+        return redirect(
+            "incidents:admin_detail",
+            incident_id=incident.incident_id,
+        )
+
+
+    form = IncidentActionForm(
+        request.POST or None
+    )
+
+
+    # -----------------------------------------------------
+    # SUBMIT ACTION
+    # -----------------------------------------------------
+
+    if (
+        request.method == "POST"
+        and form.is_valid()
+    ):
+
+        action_type = (
+            form.cleaned_data[
+                "action_type"
+            ]
+        )
+
+        notes = (
+            form.cleaned_data[
+                "notes"
+            ].strip()
+        )
+
+
+        with transaction.atomic():
+
+            # ---------------------------------------------
+            # CREATE ACTION HISTORY
+            # ---------------------------------------------
+
+            action = IncidentAction.objects.create(
+
+                incident=incident,
+
+                admin_user=request.user,
+
+                action_type=action_type,
+
+                notes=notes,
+            )
+
+
+            # ---------------------------------------------
+            # STATUS TRANSITIONS
+            # ---------------------------------------------
+
+            old_status = incident.status
+
+
+            if action_type == "INVESTIGATION":
+
+                incident.status = (
+                    Incident.Status.INVESTIGATING
+                )
+
+
+            elif action_type == "CORRECTIVE_ACTION":
+
+                incident.status = (
+                    Incident.Status.INVESTIGATING
+                )
+
+
+            elif action_type == "RESOLUTION":
+
+                incident.status = (
+                    Incident.Status.RESOLVED
+                )
+
+                incident.resolved_at = (
+                    timezone.now()
+                )
+
+
+            incident.save(
+                update_fields=[
+                    "status",
+                    "resolved_at",
+                ]
+            )
+
+
+            # ---------------------------------------------
+            # STATUS CHANGE HISTORY
+            # ---------------------------------------------
+
+            if old_status != incident.status:
+
+                IncidentAction.objects.create(
+
+                    incident=incident,
+
+                    admin_user=request.user,
+
+                    action_type=(
+                        IncidentAction
+                        .ActionType
+                        .STATUS_CHANGE
+                    ),
+
+                    notes=(
+                        f"Incident status changed "
+                        f"from {old_status} "
+                        f"to {incident.status}."
+                    ),
+                )
+
+
+        # -------------------------------------------------
+        # AUDIT LOG
+        # -------------------------------------------------
+
+        log_action(
+            request=request,
+
+            action=(
+                "INCIDENT_ACTION_RECORDED"
+            ),
+
+            entity_type=(
+                "IncidentAction"
+            ),
+
+            entity_id=(
+                action.action_id
+            ),
+
+            details=(
+                f"Administrator "
+                f"{request.user.staff_no} "
+                f"recorded "
+                f"{action_type} for "
+                f"{incident.incident_ref}. "
+                f"Incident status: "
+                f"{incident.status}."
+            ),
+        )
+
+
+        # -------------------------------------------------
+        # SUCCESS MESSAGE
+        # -------------------------------------------------
+
+        if (
+            incident.status
+            ==
+            Incident.Status.RESOLVED
+        ):
+
+            messages.success(
+                request,
+                (
+                    f"{incident.incident_ref} "
+                    "has been resolved."
+                ),
+            )
+
+        else:
+
+            messages.success(
+                request,
+                (
+                    "Incident action recorded "
+                    "successfully."
+                ),
+            )
+
+
+        return redirect(
+            "incidents:admin_detail",
+            incident_id=(
+                incident.incident_id
+            ),
+        )
+
+
+    return render(
+        request,
+        (
+            "administrator/"
+            "incidents/action.html"
+        ),
+        {
+            "incident": incident,
+            "form": form,
+        },
+    )
+

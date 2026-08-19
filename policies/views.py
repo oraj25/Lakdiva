@@ -14,6 +14,14 @@ from django.shortcuts import (
     render,
 )
 
+from notifications.models import (
+    Notification,
+)
+
+from notifications.utils import (
+    notify_active_employees,
+)
+
 from django.views.decorators.http import (
     require_POST,
 )
@@ -437,8 +445,7 @@ def admin_policy_publish(
             )
 
         # -------------------------------------------------
-        # Archive previous published versions
-        # with the same policy title.
+        # ARCHIVE PREVIOUS PUBLISHED VERSIONS
         # -------------------------------------------------
 
         previous_versions = list(
@@ -472,7 +479,7 @@ def admin_policy_publish(
             )
 
         # -------------------------------------------------
-        # Publish current version
+        # PUBLISH CURRENT VERSION
         # -------------------------------------------------
 
         policy.status = (
@@ -485,6 +492,37 @@ def admin_policy_publish(
             ]
         )
 
+        # -------------------------------------------------
+        # EMPLOYEE POLICY NOTIFICATION
+        # -------------------------------------------------
+
+        if (
+            policy.policy_type
+            in EMPLOYEE_POLICY_TYPES
+        ):
+
+            notify_active_employees(
+                title=(
+                    "New Security Policy Available"
+                ),
+                message=(
+                    f"'{policy.title}' "
+                    f"version {policy.version} "
+                    f"has been published. "
+                    f"Please read and acknowledge "
+                    f"the policy."
+                ),
+                notification_type=(
+                    Notification
+                    .NotificationType
+                    .POLICY
+                ),
+            )
+
+    # -----------------------------------------------------
+    # AUDIT LOG
+    # -----------------------------------------------------
+
     log_action(
         request=request,
         action="POLICY_PUBLISHED",
@@ -496,6 +534,10 @@ def admin_policy_publish(
             f"version {policy.version}."
         ),
     )
+
+    # -----------------------------------------------------
+    # SUCCESS MESSAGE
+    # -----------------------------------------------------
 
     messages.success(
         request,
@@ -510,7 +552,6 @@ def admin_policy_publish(
         "policies:admin_detail",
         policy_id=policy.policy_id,
     )
-
 
 # =========================================================
 # ADMIN - ARCHIVE

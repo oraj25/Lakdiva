@@ -38,6 +38,14 @@ from auditlog.utils import (
     log_action,
 )
 
+from notifications.models import (
+    Notification,
+)
+
+from notifications.utils import (
+    create_notification,
+)
+
 from .models import (
     EmployeeTraining,
     QuizAttempt,
@@ -640,8 +648,10 @@ def admin_training_assign(
 
             for employee in employees:
 
-                # Prevent multiple unfinished
-                # assignments for the same module.
+                # -------------------------------------------------
+                # PREVENT DUPLICATE UNFINISHED ASSIGNMENT
+                # -------------------------------------------------
+
                 existing = (
                     EmployeeTraining
                     .objects
@@ -665,6 +675,11 @@ def admin_training_assign(
 
                     continue
 
+
+                # -------------------------------------------------
+                # CREATE TRAINING ASSIGNMENT
+                # -------------------------------------------------
+
                 assignment = (
                     EmployeeTraining
                     .objects
@@ -684,7 +699,44 @@ def admin_training_assign(
                     )
                 )
 
+
+                # -------------------------------------------------
+                # EMPLOYEE NOTIFICATION
+                # -------------------------------------------------
+
+                create_notification(
+                    user=employee,
+
+                    title=(
+                        "New Security Training Assigned"
+                    ),
+
+                    message=(
+                        f"'{training.title}' "
+                        f"has been assigned to you."
+                        +
+                        (
+                            f" Due date: "
+                            f"{due_date}."
+                            if due_date
+                            else ""
+                        )
+                    ),
+
+                    notification_type=(
+                        Notification
+                        .NotificationType
+                        .TRAINING
+                    ),
+                )
+
+
                 created_count += 1
+
+
+                # -------------------------------------------------
+                # AUDIT LOG
+                # -------------------------------------------------
 
                 log_action(
                     request=request,
@@ -705,6 +757,11 @@ def admin_training_assign(
                         f"{employee.staff_no}."
                     ),
                 )
+
+
+        # -----------------------------------------------------
+        # SUCCESS MESSAGE
+        # -----------------------------------------------------
 
         messages.success(
             request,
@@ -734,7 +791,6 @@ def admin_training_assign(
             "form": form,
         },
     )
-
 
 # =========================================================
 # EMPLOYEE - TRAINING LIST

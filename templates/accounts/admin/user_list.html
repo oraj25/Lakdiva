@@ -1,0 +1,310 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+User Management | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_users %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =====================================================
+     PAGE HEADER
+     ===================================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1 class="page-title">
+            User Management
+        </h1>
+
+        <p class="page-description">
+            Create, review and manage Lakdiva SecurePOS
+            employee and administrator accounts.
+        </p>
+
+    </div>
+
+
+    <a
+        href="{% url 'admin_user_create' %}"
+        class="btn btn-primary"
+    >
+        Add New User
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     USER TABLE
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        System Users
+    </h2>
+
+
+    {% if users %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Staff Number
+                        </th>
+
+                        <th>
+                            Full Name
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for user in users %}
+
+                        <tr>
+
+
+                            <!-- =========================
+                                 STAFF NUMBER
+                                 ========================= -->
+
+                            <td>
+
+                                <strong>
+                                    {{ user.staff_no }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- =========================
+                                 FULL NAME
+                                 ========================= -->
+
+                            <td>
+
+                                {{ user.full_name }}
+
+                                {% if user == request.user %}
+
+                                    <br>
+
+                                    <small>
+                                        Current User
+                                    </small>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- =========================
+                                 EMAIL
+                                 ========================= -->
+
+                            <td>
+
+                                {{ user.email }}
+
+                            </td>
+
+
+                            <!-- =========================
+                                 ROLE
+                                 ========================= -->
+
+                            <td>
+
+                                {% if user.role.role_name == "ADMIN" %}
+
+                                    <span class="badge badge-warning">
+                                        Administrator
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        Employee
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- =========================
+                                 STATUS
+                                 ========================= -->
+
+                            <td>
+
+                                {% if user.status == "Active" %}
+
+                                    <span class="badge badge-success">
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-danger">
+                                        Disabled
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- =========================
+                                 ACTIONS
+                                 ========================= -->
+
+                            <td>
+
+                                <div class="table-actions">
+
+
+                                    <!-- VIEW -->
+
+                                    <a
+                                        href="{% url 'admin_user_detail' user.pk %}"
+                                        class="btn btn-secondary"
+                                    >
+                                        View
+                                    </a>
+
+
+                                    <!-- EDIT -->
+
+                                    <a
+                                        href="{% url 'admin_user_edit' user.pk %}"
+                                        class="btn btn-secondary"
+                                    >
+                                        Edit
+                                    </a>
+
+
+                                    <!-- RESET PASSWORD -->
+
+                                    <a
+                                        href="{% url 'admin_reset_password' user.pk %}"
+                                        class="btn btn-secondary"
+                                    >
+                                        Reset Password
+                                    </a>
+
+
+                                    <!-- ENABLE / DISABLE -->
+
+                                    {% if user != request.user %}
+
+                                        <form
+                                            method="post"
+                                            action="{% url 'admin_toggle_user' user.pk %}"
+                                            class="inline-form"
+                                        >
+
+                                            {% csrf_token %}
+
+
+                                            {% if user.status == "Active" %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger"
+                                                    onclick="return confirm('Disable this user account?');"
+                                                >
+                                                    Disable
+                                                </button>
+
+                                            {% else %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-primary"
+                                                    onclick="return confirm('Enable this user account?');"
+                                                >
+                                                    Enable
+                                                </button>
+
+                                            {% endif %}
+
+                                        </form>
+
+
+                                    {% else %}
+
+                                        <span class="badge badge-neutral">
+                                            Current Account
+                                        </span>
+
+                                    {% endif %}
+
+
+                                </div>
+
+                            </td>
+
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No users found.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

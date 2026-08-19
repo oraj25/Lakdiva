@@ -1,0 +1,145 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Compliance Management | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_compliance %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Compliance Management
+    </h1>
+
+    <p>
+        Monitor employee security compliance.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+        Employee Compliance
+    </h2>
+
+
+    <div class="table-container">
+
+        <table class="app-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Employee
+                    </th>
+
+                    <th>
+                        Employee No
+                    </th>
+
+                    <th>
+                        Policy Compliance
+                    </th>
+
+                    <th>
+                        Training Compliance
+                    </th>
+
+                    <th>
+                        Employee Score
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in summaries %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.user.full_name }}
+                        </td>
+
+                        <td>
+                            {{ item.user.staff_no }}
+                        </td>
+
+                        <td>
+                            {{ item.policy_compliance|floatformat:0 }}%
+                        </td>
+
+                        <td>
+                            {{ item.training_compliance|floatformat:0 }}%
+                        </td>
+
+                        <td>
+                            {{ item.employee_score|floatformat:0 }}%
+                        </td>
+
+                        <td>
+
+                            {% if item.user.pk %}
+
+                                <a
+                                    href="{% url 'compliance:admin_employee_compliance' item.user.pk %}"
+                                    class="btn"
+                                >
+                                    View
+                                </a>
+
+                            {% else %}
+
+                                <span>
+                                    Unavailable
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            No employee compliance records available.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

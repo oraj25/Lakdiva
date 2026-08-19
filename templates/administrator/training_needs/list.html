@@ -1,0 +1,340 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Training Needs | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training_needs %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Training Needs
+    </h1>
+
+    <p class="page-description">
+        Identify employees requiring additional
+        security-awareness training.
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Open Training Needs
+        </div>
+
+        <div class="card-value">
+            {{ open_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            High Priority
+        </div>
+
+        <div class="card-value">
+            {{ high_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <form
+            method="get"
+            class="filter-form"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Employee or training..."
+                value="{{ search }}"
+            >
+
+
+            <select
+                name="priority"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Priorities
+                </option>
+
+                {% for value, label in priorities %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_priority == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <select
+                name="status"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Statuses
+                </option>
+
+                {% for value, label in statuses %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_status == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="btn btn-secondary"
+            >
+                Filter
+            </button>
+
+        </form>
+
+
+        <form
+            method="post"
+            action="{% url 'training_needs:admin_analyze' %}"
+        >
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Analyze Training Results
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Identified Training Needs
+    </h2>
+
+
+    {% if needs %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Employee</th>
+                        <th>Training</th>
+                        <th>Score</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Additional Training</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for need in needs %}
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+                                    {{ need.user.staff_no }}
+                                </strong>
+
+                                <br>
+
+                                {{ need.user.full_name }}
+
+                            </td>
+
+
+                            <td>
+                                {{ need.training.title }}
+                            </td>
+
+
+                            <td>
+
+                                {% if need.score != None %}
+
+                                    {{ need.score }}%
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if need.priority == "High" %}
+
+                                    <span class="badge badge-danger">
+                                        HIGH
+                                    </span>
+
+                                {% elif need.priority == "Medium" %}
+
+                                    <span class="badge badge-warning">
+                                        MEDIUM
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        LOW
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if need.status == "Addressed" %}
+
+                                    <span class="badge badge-success">
+                                        ADDRESSED
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-warning">
+                                        OPEN
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if need.additional_assignment %}
+
+                                    {{ need.additional_assignment.status }}
+
+                                {% else %}
+
+                                    Not assigned
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if need.status == "Open" %}
+
+                                    {% if not need.additional_assignment %}
+
+                                        <a
+                                            href="{% url 'training_needs:admin_assign' need.need_id %}"
+                                            class="btn btn-primary"
+                                        >
+                                            Assign Training
+                                        </a>
+
+                                    {% else %}
+
+                                        <span class="badge badge-neutral">
+                                            Assigned
+                                        </span>
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No training needs have been
+            identified.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

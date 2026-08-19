@@ -1,0 +1,202 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Audit Record | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_audit %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Audit Record #{{ audit_entry.log_id }}
+    </h1>
+
+    <p class="page-description">
+        Read-only security activity record.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Event Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+
+        <div>
+
+            <strong>
+                Log ID
+            </strong>
+
+            <p>
+                {{ audit_entry.log_id }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Date / Time
+            </strong>
+
+            <p>
+                {{ audit_entry.created_at }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                User
+            </strong>
+
+            <p>
+
+                {% if audit_entry.user %}
+
+                    {{ audit_entry.user.staff_no }}
+                    -
+                    {{ audit_entry.user.full_name }}
+
+                {% else %}
+
+                    SYSTEM / Unauthenticated
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Action
+            </strong>
+
+            <p>
+                {{ audit_entry.action }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Entity Type
+            </strong>
+
+            <p>
+                {{ audit_entry.entity_type|default:"—" }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Entity ID
+            </strong>
+
+            <p>
+                {{ audit_entry.entity_id|default:"—" }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                IP Address
+            </strong>
+
+            <p>
+                {{ audit_entry.ip_address|default:"—" }}
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Event Details
+    </h2>
+
+
+    {% if audit_entry.details %}
+
+        <div class="audit-details">
+
+            {{ audit_entry.details|linebreaksbr }}
+
+        </div>
+
+    {% else %}
+
+        <p>
+            No additional details were recorded.
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="panel audit-protection-notice">
+
+    <strong>
+        Protected Audit Record
+    </strong>
+
+    <p>
+        Audit records are displayed as
+        read-only information and cannot be
+        edited or deleted through the
+        Lakdiva SecurePOS user interface.
+    </p>
+
+</div>
+
+
+<div class="form-actions">
+
+    <a
+        href="{% url 'auditlog:admin_list' %}"
+        class="btn btn-secondary"
+    >
+        Back to Audit Logs
+    </a>
+
+</div>
+
+
+{% endblock %}

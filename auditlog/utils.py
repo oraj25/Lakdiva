@@ -1,15 +1,28 @@
-from .models import AuditLog
+from .models import (
+    AuditLog,
+)
 
 
-def get_client_ip(request):
-    """
-    Get the IP address directly seen by Django.
-    """
+# =========================================================
+# CLIENT IP
+# =========================================================
+
+def get_client_ip(
+    request,
+):
+
+    if not request:
+
+        return None
 
     return request.META.get(
         "REMOTE_ADDR"
     )
 
+
+# =========================================================
+# CREATE AUDIT LOG
+# =========================================================
 
 def log_action(
     request,
@@ -17,26 +30,57 @@ def log_action(
     entity_type="",
     entity_id=None,
     details="",
+    user=None,
 ):
-    """
-    Create a security audit record.
-    """
 
-    user = None
+    # -----------------------------------------------------
+    # DETERMINE ACTOR
+    # -----------------------------------------------------
 
-    if (
-        hasattr(request, "user")
-        and request.user.is_authenticated
-    ):
-        user = request.user
+    actor = user
 
-    AuditLog.objects.create(
-        user=user,
-        action=action,
-        entity_type=entity_type,
+    if actor is None:
+
+        request_user = getattr(
+            request,
+            "user",
+            None,
+        )
+
+        if (
+            request_user
+            and
+            request_user.is_authenticated
+        ):
+
+            actor = request_user
+
+
+    # -----------------------------------------------------
+    # CREATE AUDIT RECORD
+    # -----------------------------------------------------
+
+    return AuditLog.objects.create(
+
+        user=actor,
+
+        action=str(
+            action
+        )[:100],
+
+        entity_type=str(
+            entity_type or ""
+        )[:100],
+
         entity_id=entity_id,
-        details=details,
-        ip_address=get_client_ip(
-            request
+
+        details=str(
+            details or ""
+        ),
+
+        ip_address=(
+            get_client_ip(
+                request
+            )
         ),
     )

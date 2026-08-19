@@ -65,6 +65,9 @@ INSTALLED_APPS = [
     "pos_security",
     "notifications",
     "incidents",
+    "compliance",
+    "training_needs",
+    "reports",
 ]
 
 
@@ -122,6 +125,8 @@ TEMPLATES = [
 
                 "django.contrib.messages."
                 "context_processors.messages",
+
+                "notifications.context_processors.notification_context",
             ],
         },
     },
@@ -285,3 +290,13 @@ QUIZ_PASS_PERCENTAGE = 60
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
+
+# =========================================================
+# TRAINING NEED SETTINGS
+# =========================================================
+
+TRAINING_NEED_THRESHOLD = 70
+
+TRAINING_NEED_HIGH_THRESHOLD = 40
+
+TRAINING_NEED_MEDIUM_THRESHOLD = 60

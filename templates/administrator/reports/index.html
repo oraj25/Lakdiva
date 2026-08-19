@@ -1,0 +1,242 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Security Reports | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_reports %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Security Reports
+    </h1>
+
+    <p class="page-description">
+        Generate security, compliance,
+        training, POS and incident reports.
+    </p>
+
+</div>
+
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Active Employees
+        </div>
+
+        <div class="card-value">
+            {{ active_employee_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Average Employee Score
+        </div>
+
+        <div class="card-value">
+            {{ average_employee_score|floatformat:1 }}%
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Open Incidents
+        </div>
+
+        <div class="card-value">
+            {{ open_incident_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Open Training Needs
+        </div>
+
+        <div class="card-value">
+            {{ open_training_need_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Report Date Range
+    </h2>
+
+
+    <form
+        method="get"
+        class="filter-form"
+    >
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.date_from.id_for_label }}"
+            >
+                From
+            </label>
+
+            {{ form.date_from }}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.date_to.id_for_label }}"
+            >
+                To
+            </label>
+
+            {{ form.date_to }}
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="btn btn-secondary"
+        >
+            Apply Date Range
+        </button>
+
+    </form>
+
+
+    {% if form.non_field_errors %}
+
+        <div class="message error">
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="report-grid">
+
+
+    <div class="report-card">
+
+        <h3>
+            Employee Compliance Report
+        </h3>
+
+        <p>
+            Policy compliance, training compliance,
+            POS security-check compliance and
+            employee security scores.
+        </p>
+
+        <a
+            href="{% url 'reports:compliance_csv' %}"
+            class="btn btn-primary"
+        >
+            Download CSV
+        </a>
+
+    </div>
+
+
+    <div class="report-card">
+
+        <h3>
+            Training & Quiz Report
+        </h3>
+
+        <p>
+            Employee training assignments,
+            completion progress and latest
+            quiz results.
+        </p>
+
+        <a
+            href="{% url 'reports:training_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}"
+            class="btn btn-primary"
+        >
+            Download CSV
+        </a>
+
+    </div>
+
+
+    <div class="report-card">
+
+        <h3>
+            POS Security Report
+        </h3>
+
+        <p>
+            POS shifts, cash variance,
+            security-check completion and
+            suspicious results.
+        </p>
+
+        <a
+            href="{% url 'reports:pos_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}"
+            class="btn btn-primary"
+        >
+            Download CSV
+        </a>
+
+    </div>
+
+
+    <div class="report-card">
+
+        <h3>
+            Incident Report
+        </h3>
+
+        <p>
+            Security incidents, statuses,
+            POS information and latest
+            incident risk classification.
+        </p>
+
+        <a
+            href="{% url 'reports:incident_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}"
+            class="btn btn-primary"
+        >
+            Download CSV
+        </a>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

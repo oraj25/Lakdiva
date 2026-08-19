@@ -20,21 +20,16 @@ active
         Administrator Dashboard
     </h1>
 
-
     <p class="page-description">
-
-        Monitor employee security awareness,
-        compliance, POS activity and
-        reported security incidents.
-
+        Security awareness, compliance,
+        POS security and incident overview.
     </p>
 
 </div>
 
 
-
 <!-- =====================================================
-     SUMMARY
+     MAIN DASHBOARD CARDS
      ===================================================== -->
 
 <div class="card-grid">
@@ -47,7 +42,7 @@ active
         </div>
 
         <div class="card-value">
-            0
+            {{ active_employee_count }}
         </div>
 
         <div class="card-note">
@@ -60,15 +55,15 @@ active
     <div class="card">
 
         <div class="card-label">
-            Pending Incidents
+            Policy Compliance
         </div>
 
         <div class="card-value">
-            {{ pending_incident_count }}
+            {{ overall_policy_compliance|floatformat:1 }}%
         </div>
 
         <div class="card-note">
-            New or investigating incidents
+            Average policy acknowledgement
         </div>
 
     </div>
@@ -77,15 +72,15 @@ active
     <div class="card">
 
         <div class="card-label">
-            Average Compliance
+            Training Completion
         </div>
 
         <div class="card-value">
-            0%
+            {{ training_completion|floatformat:1 }}%
         </div>
 
         <div class="card-note">
-            Average employee security score
+            Completed assigned training
         </div>
 
     </div>
@@ -94,26 +89,136 @@ active
     <div class="card">
 
         <div class="card-label">
-            Open Training Needs
+            POS Check Compliance
         </div>
 
         <div class="card-value">
-            0
+            {{ overall_pos_compliance|floatformat:1 }}%
         </div>
 
         <div class="card-note">
-            Training needs requiring action
+            POS shifts with security checks
         </div>
 
     </div>
 
+
+    <div class="card">
+
+        <div class="card-label">
+            Employee Security Score
+        </div>
+
+        <div class="card-value">
+            {{ average_employee_score|floatformat:1 }}%
+        </div>
+
+        <div class="card-note">
+            Average employee score
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Open Incidents
+        </div>
+
+        <div class="card-value">
+            {{ open_incident_count }}
+        </div>
+
+        <div class="card-note">
+            New or investigating
+        </div>
+
+    </div>
+
+
+    <div class="card dashboard-alert-card">
+
+        <div class="card-label">
+            High-Risk Incidents
+        </div>
+
+        <div class="card-value">
+            {{ high_risk_incident_count }}
+        </div>
+
+        <div class="card-note">
+            Open HIGH-risk incidents
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Training Needs
+        </div>
+
+        <div class="card-value">
+            {{ open_training_need_count }}
+        </div>
+
+        <div class="card-note">
+            {{ high_training_need_count }}
+            high priority
+        </div>
+
+    </div>
 
 </div>
 
 
+<!-- =====================================================
+     TODAY'S POS SECURITY
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Today's POS Security
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Security Checks Completed
+            </strong>
+
+            <p class="dashboard-stat">
+                {{ security_checks_today }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Suspicious Checks
+            </strong>
+
+            <p class="dashboard-stat">
+                {{ suspicious_checks_today }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 <!-- =====================================================
-     MANAGEMENT ACTIONS
+     QUICK MANAGEMENT ACTIONS
      ===================================================== -->
 
 <div class="panel">
@@ -127,34 +232,16 @@ active
 
 
         <a
-            href="#"
-            class="action-card"
-        >
-
-            <div class="action-title">
-                Manage Users
-            </div>
-
-            <div class="action-description">
-                Create, update, activate
-                or disable accounts.
-            </div>
-
-        </a>
-
-
-        <a
             href="{% url 'policies:admin_list' %}"
             class="action-card"
         >
 
             <div class="action-title">
-                Manage Policies
+                Policy Management
             </div>
 
             <div class="action-description">
-                Create, publish, version
-                and archive policies.
+                Manage security policies
             </div>
 
         </a>
@@ -166,12 +253,11 @@ active
         >
 
             <div class="action-title">
-                Manage Training
+                Training Management
             </div>
 
             <div class="action-description">
-                Manage training modules,
-                assignments and quizzes.
+                Training and quizzes
             </div>
 
         </a>
@@ -183,19 +269,18 @@ active
         >
 
             <div class="action-title">
-                Review Incidents
+                Incident Management
             </div>
 
             <div class="action-description">
-                Investigate and resolve
-                reported security incidents.
+                Review security incidents
             </div>
 
         </a>
 
 
         <a
-            href="#"
+            href="{% url 'compliance:admin_compliance' %}"
             class="action-card"
         >
 
@@ -204,15 +289,14 @@ active
             </div>
 
             <div class="action-description">
-                Monitor employee security
-                compliance scores.
+                Review compliance scores
             </div>
 
         </a>
 
 
         <a
-            href="#"
+            href="{% url 'training_needs:admin_list' %}"
             class="action-card"
         >
 
@@ -221,8 +305,43 @@ active
             </div>
 
             <div class="action-description">
-                Review identified security
-                training requirements.
+                Review awareness gaps
+            </div>
+
+        </a>
+
+
+        <a
+            href="{% url 'reports:index' %}"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Security Reports
+            </div>
+
+            <div class="action-description">
+                Generate security reports
+            </div>
+
+        </a>
+
+
+        <!-- =================================================
+             AUDIT LOGS
+             ================================================= -->
+
+        <a
+            href="{% url 'auditlog:admin_list' %}"
+            class="action-card"
+        >
+
+            <div class="action-title">
+                Audit Logs
+            </div>
+
+            <div class="action-description">
+                Review recorded security activity
             </div>
 
         </a>
@@ -231,6 +350,241 @@ active
     </div>
 
 </div>
+
+<!-- =====================================================
+     RECENT INCIDENTS
+     ===================================================== -->
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <h2 class="panel-title">
+            Recent Security Incidents
+        </h2>
+
+        <a
+            href="{% url 'incidents:admin_list' %}"
+            class="btn btn-secondary"
+        >
+            View All
+        </a>
+
+    </div>
+
+
+    {% if recent_incidents %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Reference</th>
+                        <th>Incident</th>
+                        <th>Employee</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for incident in recent_incidents %}
+
+                        <tr>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'incidents:admin_detail' incident.incident_id %}"
+                                >
+                                    {{ incident.incident_ref }}
+                                </a>
+
+                            </td>
+
+
+                            <td>
+                                {{ incident.title }}
+                            </td>
+
+
+                            <td>
+                                {{ incident.reported_by.staff_no }}
+                            </td>
+
+
+                            <td>
+
+                                {% if incident.current_risk == "HIGH" %}
+
+                                    <span class="badge badge-danger">
+                                        HIGH
+                                    </span>
+
+                                {% elif incident.current_risk == "MEDIUM" %}
+
+                                    <span class="badge badge-warning">
+                                        MEDIUM
+                                    </span>
+
+                                {% elif incident.current_risk == "LOW" %}
+
+                                    <span class="badge badge-success">
+                                        LOW
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        NOT ASSESSED
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+                                {{ incident.get_status_display }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+            No incidents have been reported.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     TRAINING NEEDS
+     ===================================================== -->
+
+<div class="panel">
+
+    <div class="toolbar">
+
+        <h2 class="panel-title">
+            Recent Training Needs
+        </h2>
+
+        <a
+            href="{% url 'training_needs:admin_list' %}"
+            class="btn btn-secondary"
+        >
+            View All
+        </a>
+
+    </div>
+
+
+    {% if recent_training_needs %}
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Employee</th>
+                        <th>Training</th>
+                        <th>Score</th>
+                        <th>Priority</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for need in recent_training_needs %}
+
+                        <tr>
+
+                            <td>
+                                {{ need.user.staff_no }}
+                                -
+                                {{ need.user.full_name }}
+                            </td>
+
+                            <td>
+                                {{ need.training.title }}
+                            </td>
+
+                            <td>
+                                {{ need.score|default:"—" }}%
+                            </td>
+
+                            <td>
+
+                                {% if need.priority == "High" %}
+
+                                    <span class="badge badge-danger">
+                                        HIGH
+                                    </span>
+
+                                {% elif need.priority == "Medium" %}
+
+                                    <span class="badge badge-warning">
+                                        MEDIUM
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        LOW
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+            No open training needs.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     SECURITY ALERTS
+     ===================================================== -->
 
 <div class="panel">
 
@@ -261,35 +615,14 @@ active
 
         {% endfor %}
 
+
     {% else %}
 
         <div class="empty-state">
-
             No unread security alerts.
-
         </div>
 
     {% endif %}
-
-</div>
-
-<!-- =====================================================
-     RECENT ACTIVITY
-     ===================================================== -->
-
-<div class="panel">
-
-    <h2 class="panel-title">
-        Recent Security Activity
-    </h2>
-
-
-    <div class="empty-state">
-
-        No security activity has been
-        recorded yet.
-
-    </div>
 
 </div>
 

@@ -201,7 +201,7 @@
         <li>
 
             <a
-                href="#"
+                href="{% url 'compliance:my_compliance' %}"
                 class="
                     sidebar-link
                     {% block nav_compliance %}
@@ -217,34 +217,32 @@
         <li>
 
             <a
-                href="#"
+                href="{% url 'notifications:employee_list' %}"
                 class="
                     sidebar-link
                     {% block nav_notifications %}
                     {% endblock %}
                 "
             >
-                Notifications
+
+                <span>
+                    Notifications
+                </span>
+
+
+                {% if global_unread_notification_count > 0 %}
+
+                    <span class="sidebar-count">
+
+                        {{ global_unread_notification_count }}
+
+                    </span>
+
+                {% endif %}
+
             </a>
 
         </li>
-
-
-        <li>
-
-            <a
-                href="#"
-                class="
-                    sidebar-link
-                    {% block nav_profile %}
-                    {% endblock %}
-                "
-            >
-                Profile
-            </a>
-
-        </li>
-
 
     </ul>
 

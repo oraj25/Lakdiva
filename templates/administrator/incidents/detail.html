@@ -36,7 +36,7 @@ active
         </div>
 
         <div class="card-value small-value">
-            {{ incident.status }}
+            {{ incident.get_status_display }}
         </div>
 
     </div>
@@ -195,22 +195,38 @@ active
         </h2>
 
 
-        <a
-            href="{% url 'incidents:admin_risk_assessment' incident.incident_id %}"
-            class="btn btn-primary"
-        >
+        <div class="form-actions">
 
-            {% if latest_risk %}
+            <a
+                href="{% url 'incidents:admin_risk_assessment' incident.incident_id %}"
+                class="btn btn-primary"
+            >
 
-                Reassess Risk
+                {% if latest_risk %}
 
-            {% else %}
+                    Reassess Risk
 
-                Assess Risk
+                {% else %}
+
+                    Assess Risk
+
+                {% endif %}
+
+            </a>
+
+
+            {% if incident.status != "RESOLVED" %}
+
+                <a
+                    href="{% url 'incidents:admin_action' incident.incident_id %}"
+                    class="btn btn-primary"
+                >
+                    Investigate / Take Action
+                </a>
 
             {% endif %}
 
-        </a>
+        </div>
 
     </div>
 
@@ -373,7 +389,6 @@ active
         </div>
 
 
-
     {% else %}
 
         <div class="empty-state">
@@ -386,6 +401,7 @@ active
     {% endif %}
 
 </div>
+
 
 {% if risk_assessments %}
 
@@ -403,10 +419,23 @@ active
                 <thead>
 
                     <tr>
-                        <th>Date</th>
-                        <th>Administrator</th>
-                        <th>Score</th>
-                        <th>Risk Level</th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Administrator
+                        </th>
+
+                        <th>
+                            Score
+                        </th>
+
+                        <th>
+                            Risk Level
+                        </th>
+
                     </tr>
 
                 </thead>
@@ -470,6 +499,87 @@ active
     </div>
 
 {% endif %}
+
+
+{% if incident.actions.all %}
+
+    <div class="panel">
+
+        <h2 class="panel-title">
+            Investigation & Action History
+        </h2>
+
+
+        <div class="table-container">
+
+            <table class="app-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Administrator
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                        <th>
+                            Details
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for action in incident.actions.all %}
+
+                        <tr>
+
+                            <td>
+                                {{ action.created_at }}
+                            </td>
+
+
+                            <td>
+                                {{ action.admin_user.staff_no }}
+                                -
+                                {{ action.admin_user.full_name }}
+                            </td>
+
+
+                            <td>
+                                {{ action.get_action_type_display }}
+                            </td>
+
+
+                            <td>
+                                {{ action.notes }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
 
 <div class="form-actions">
 

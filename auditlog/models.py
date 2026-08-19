@@ -2,6 +2,10 @@ from django.conf import settings
 from django.db import models
 
 
+# =========================================================
+# AUDIT LOG
+# =========================================================
+
 class AuditLog(models.Model):
 
     log_id = models.BigAutoField(
@@ -14,6 +18,7 @@ class AuditLog(models.Model):
         null=True,
         blank=True,
         related_name="audit_logs",
+        db_column="user_id",
     )
 
     action = models.CharField(
@@ -41,15 +46,43 @@ class AuditLog(models.Model):
 
     created_at = models.DateTimeField(
         auto_now_add=True,
-        db_index=True,
     )
 
+
     class Meta:
+
         db_table = "audit_logs"
-        ordering = ["-created_at"]
+
+        ordering = [
+            "-created_at"
+        ]
+
+        indexes = [
+
+            models.Index(
+                fields=[
+                    "user"
+                ]
+            ),
+
+            models.Index(
+                fields=[
+                    "entity_type"
+                ]
+            ),
+        ]
+
 
     def __str__(self):
+
+        actor = (
+            self.user.staff_no
+            if self.user
+            else "SYSTEM"
+        )
+
         return (
+            f"{actor} - "
             f"{self.action} - "
             f"{self.created_at}"
         )

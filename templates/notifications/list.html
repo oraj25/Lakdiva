@@ -1,0 +1,322 @@
+{% extends base_template %}
+
+
+{% block title %}
+{{ page_title }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_notifications %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        {{ page_title }}
+    </h1>
+
+    <p class="page-description">
+        {{ page_description }}
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     SUMMARY
+     ===================================================== -->
+
+<div class="card-grid">
+
+    <div class="card">
+
+        <div class="card-label">
+            Unread Notifications
+        </div>
+
+        <div class="card-value">
+            {{ global_unread_notification_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FILTERS
+     ===================================================== -->
+
+<div class="panel">
+
+    <div class="toolbar">
+
+
+        <form
+            method="get"
+            class="filter-form"
+        >
+
+            <select
+                name="status"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Notifications
+                </option>
+
+                <option
+                    value="unread"
+                    {% if selected_status == "unread" %}
+                        selected
+                    {% endif %}
+                >
+                    Unread
+                </option>
+
+                <option
+                    value="read"
+                    {% if selected_status == "read" %}
+                        selected
+                    {% endif %}
+                >
+                    Read
+                </option>
+
+            </select>
+
+
+            <select
+                name="type"
+                class="form-control"
+            >
+
+                <option value="">
+                    All Types
+                </option>
+
+
+                {% for value, label in notification_types %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_type == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="btn btn-secondary"
+            >
+                Filter
+            </button>
+
+
+            <a
+                href="."
+                class="btn btn-secondary"
+            >
+                Clear
+            </a>
+
+        </form>
+
+
+        {% if global_unread_notification_count > 0 %}
+
+            <form
+                method="post"
+                action="{% url 'notifications:mark_all_read' %}"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Mark All as Read
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     NOTIFICATIONS
+     ===================================================== -->
+
+<div class="notification-list">
+
+
+    {% for notification in notifications %}
+
+
+        <div
+            class="
+                notification-card
+                {% if not notification.is_read %}
+                    notification-unread
+                {% endif %}
+            "
+        >
+
+
+            <div class="notification-header">
+
+
+                <div>
+
+                    <div class="notification-type">
+
+                        {% if notification.notification_type == "HIGH_RISK_INCIDENT" %}
+
+                            <span class="badge badge-danger">
+                                HIGH RISK
+                            </span>
+
+
+                        {% elif notification.notification_type == "NEW_INCIDENT" %}
+
+                            <span class="badge badge-warning">
+                                INCIDENT
+                            </span>
+
+
+                        {% elif notification.notification_type == "POLICY" %}
+
+                            <span class="badge badge-neutral">
+                                POLICY
+                            </span>
+
+
+                        {% elif notification.notification_type == "TRAINING" %}
+
+                            <span class="badge badge-neutral">
+                                TRAINING
+                            </span>
+
+
+                        {% elif notification.notification_type == "COMPLIANCE" %}
+
+                            <span class="badge badge-warning">
+                                COMPLIANCE
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="badge badge-neutral">
+                                NOTIFICATION
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <h3 class="notification-title">
+                        {{ notification.title }}
+                    </h3>
+
+                </div>
+
+
+                {% if not notification.is_read %}
+
+                    <span class="unread-indicator">
+                        Unread
+                    </span>
+
+                {% endif %}
+
+
+            </div>
+
+
+            <p class="notification-message">
+
+                {{ notification.message }}
+
+            </p>
+
+
+            <div class="notification-footer">
+
+                <small>
+                    {{ notification.created_at }}
+                </small>
+
+
+                {% if not notification.is_read %}
+
+                    <form
+                        method="post"
+                        action="{% url 'notifications:mark_read' notification.notification_id %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-secondary"
+                        >
+                            Mark as Read
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <span class="notification-read-label">
+                        Read
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+        </div>
+
+
+    {% empty %}
+
+
+        <div class="panel">
+
+            <div class="empty-state">
+
+                No notifications found.
+
+            </div>
+
+        </div>
+
+
+    {% endfor %}
+
+
+</div>
+
+
+{% endblock %}

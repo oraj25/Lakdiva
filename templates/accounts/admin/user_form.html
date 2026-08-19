@@ -1,0 +1,305 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+{{ page_title }} | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_users %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =====================================================
+     PAGE HEADER
+     ===================================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1 class="page-title">
+            {{ page_title }}
+        </h1>
+
+        <p class="page-description">
+
+            {% if target_user %}
+
+                Update the account information for
+                {{ target_user.full_name }}.
+
+            {% else %}
+
+                Create a new employee or administrator
+                account for Lakdiva SecurePOS.
+
+            {% endif %}
+
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     USER FORM
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+
+        {% if target_user %}
+
+            User Information
+
+        {% else %}
+
+            New User Information
+
+        {% endif %}
+
+    </h2>
+
+
+    <form
+        method="post"
+        class="app-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- =============================================
+             NON FIELD ERRORS
+             ============================================= -->
+
+        {% if form.non_field_errors %}
+
+            <div class="form-errors">
+
+                {% for error in form.non_field_errors %}
+
+                    <p>
+                        {{ error }}
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =============================================
+             STAFF NUMBER
+             ============================================= -->
+
+        <div class="form-group">
+
+            <label for="{{ form.staff_no.id_for_label }}">
+                Staff Number
+            </label>
+
+            {{ form.staff_no }}
+
+            {% for error in form.staff_no.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =============================================
+             FULL NAME
+             ============================================= -->
+
+        <div class="form-group">
+
+            <label for="{{ form.full_name.id_for_label }}">
+                Full Name
+            </label>
+
+            {{ form.full_name }}
+
+            {% for error in form.full_name.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =============================================
+             EMAIL
+             ============================================= -->
+
+        <div class="form-group">
+
+            <label for="{{ form.email.id_for_label }}">
+                Email
+            </label>
+
+            {{ form.email }}
+
+            {% for error in form.email.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =============================================
+             ROLE
+             ============================================= -->
+
+        <div class="form-group">
+
+            <label for="{{ form.role.id_for_label }}">
+                Role
+            </label>
+
+            {{ form.role }}
+
+            {% for error in form.role.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =============================================
+             STATUS
+             ============================================= -->
+
+        <div class="form-group">
+
+            <label for="{{ form.status.id_for_label }}">
+                Account Status
+            </label>
+
+            {{ form.status }}
+
+            {% for error in form.status.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =============================================
+             PASSWORD FIELDS - CREATE ONLY
+             ============================================= -->
+
+        {% if form.password1 %}
+
+            <div class="form-group">
+
+                <label for="{{ form.password1.id_for_label }}">
+                    Password
+                </label>
+
+                {{ form.password1 }}
+
+                {% if form.password1.help_text %}
+
+                    <div class="form-help">
+                        {{ form.password1.help_text|safe }}
+                    </div>
+
+                {% endif %}
+
+                {% for error in form.password1.errors %}
+
+                    <div class="field-error">
+                        {{ error }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.password2.id_for_label }}">
+                    Confirm Password
+                </label>
+
+                {{ form.password2 }}
+
+                {% for error in form.password2.errors %}
+
+                    <div class="field-error">
+                        {{ error }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =============================================
+             ACTION BUTTONS
+             ============================================= -->
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+
+                {% if target_user %}
+
+                    Save Changes
+
+                {% else %}
+
+                    Create User
+
+                {% endif %}
+
+            </button>
+
+
+            <a
+                href="{% url 'admin_user_list' %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

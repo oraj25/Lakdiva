@@ -73,5 +73,14 @@ urlpatterns = [
     ),
     views.admin_risk_assessment_create,
     name="admin_risk_assessment",
-),
+    ),
+
+    path(
+    (
+        "administrator/incidents/"
+        "<int:incident_id>/action/"
+    ),
+    views.admin_incident_action,
+    name="admin_action",
+    ),
 ]

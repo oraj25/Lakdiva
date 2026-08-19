@@ -1,0 +1,231 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Incident Investigation | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_incidents %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Incident Investigation & Action
+    </h1>
+
+    <p class="page-description">
+        {{ incident.incident_ref }}
+        — {{ incident.title }}
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Incident Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Incident Reference
+            </strong>
+
+            <p>
+                {{ incident.incident_ref }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Current Status
+            </strong>
+
+            <p>
+                {{ incident.get_status_display }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Category
+            </strong>
+
+            <p>
+                {{ incident.category.category_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Reported By
+            </strong>
+
+            <p>
+                {{ incident.reported_by.full_name }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Record Incident Action
+    </h2>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+            <div class="message error">
+                {{ form.non_field_errors }}
+            </div>
+
+        {% endif %}
+
+
+        <div class="form-group">
+
+            <label for="{{ form.action_type.id_for_label }}">
+                {{ form.action_type.label }}
+            </label>
+
+            {{ form.action_type }}
+
+            {% for error in form.action_type.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="{{ form.notes.id_for_label }}">
+                {{ form.notes.label }}
+            </label>
+
+            {{ form.notes }}
+
+            <small class="form-help">
+                Record factual investigation findings,
+                corrective actions taken, or final
+                resolution details.
+            </small>
+
+
+            {% for error in form.notes.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="
+                    return confirm(
+                        'Record this incident action?'
+                    );
+                "
+            >
+                Save Action
+            </button>
+
+
+            <a
+                href="{% url 'incidents:admin_detail' incident.incident_id %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Workflow
+    </h2>
+
+
+    <div class="workflow">
+
+        <div class="workflow-step">
+            <strong>NEW</strong>
+            <span>Incident reported</span>
+        </div>
+
+
+        <div class="workflow-arrow">
+            →
+        </div>
+
+
+        <div class="workflow-step">
+            <strong>INVESTIGATING</strong>
+            <span>Investigation / action</span>
+        </div>
+
+
+        <div class="workflow-arrow">
+            →
+        </div>
+
+
+        <div class="workflow-step">
+            <strong>RESOLVED</strong>
+            <span>Incident closed</span>
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

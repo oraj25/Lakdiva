@@ -1,0 +1,257 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+User Details | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_users %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =====================================================
+     PAGE HEADER
+     ===================================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1 class="page-title">
+            User Details
+        </h1>
+
+        <p class="page-description">
+            Review Lakdiva SecurePOS user account information.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ACCOUNT INFORMATION
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Account Information
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Staff Number
+            </strong>
+
+            <p>
+                {{ target_user.staff_no }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Full Name
+            </strong>
+
+            <p>
+                {{ target_user.full_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Email
+            </strong>
+
+            <p>
+                {{ target_user.email }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Role
+            </strong>
+
+            <p>
+
+                {% if target_user.role.role_name == "ADMIN" %}
+
+                    <span class="badge badge-warning">
+                        Administrator
+                    </span>
+
+                {% else %}
+
+                    <span class="badge badge-neutral">
+                        Employee
+                    </span>
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Account Status
+            </strong>
+
+            <p>
+
+                {% if target_user.status == "Active" %}
+
+                    <span class="badge badge-success">
+                        Active
+                    </span>
+
+                {% else %}
+
+                    <span class="badge badge-danger">
+                        Disabled
+                    </span>
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Created At
+            </strong>
+
+            <p>
+                {{ target_user.created_at }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Last Updated
+            </strong>
+
+            <p>
+                {{ target_user.updated_at }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ACCOUNT ACTIONS
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Account Actions
+    </h2>
+
+
+    <div class="form-actions">
+
+        <a
+            href="{% url 'admin_user_edit' target_user.pk %}"
+            class="btn btn-primary"
+        >
+            Edit User
+        </a>
+
+
+        <a
+            href="{% url 'admin_reset_password' target_user.pk %}"
+            class="btn btn-secondary"
+        >
+            Reset Password
+        </a>
+
+
+        {% if target_user != request.user %}
+
+            <form
+                method="post"
+                action="{% url 'admin_toggle_user' target_user.pk %}"
+                class="inline-form"
+            >
+
+                {% csrf_token %}
+
+                {% if target_user.status == "Active" %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                        onclick="return confirm('Disable this user account?');"
+                    >
+                        Disable Account
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        onclick="return confirm('Enable this user account?');"
+                    >
+                        Enable Account
+                    </button>
+
+                {% endif %}
+
+            </form>
+
+        {% else %}
+
+            <span class="badge badge-neutral">
+                Current Account
+            </span>
+
+        {% endif %}
+
+
+        <a
+            href="{% url 'admin_user_list' %}"
+            class="btn btn-secondary"
+        >
+            Back to User Management
+        </a>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Employee Compliance | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Employee Compliance
+    </h1>
+
+    <p>
+        {{ employee.full_name }}
+        -
+        {{ employee.employee_no }}
+    </p>
+
+</div>
+
+
+<div class="compliance-cards">
+
+    <div class="compliance-card">
+
+        <h3>
+            Policy Compliance
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.policy_compliance|floatformat:0 }}%
+
+        </div>
+
+    </div>
+
+
+    <div class="compliance-card">
+
+        <h3>
+            Training Compliance
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.training_compliance|floatformat:0 }}%
+
+        </div>
+
+    </div>
+
+
+    <div class="compliance-card">
+
+        <h3>
+            Employee Score
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.employee_score|floatformat:0 }}%
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+        Employee Information
+    </h2>
+
+    <p>
+        <strong>Name:</strong>
+        {{ employee.full_name }}
+    </p>
+
+    <p>
+        <strong>Employee No:</strong>
+        {{ employee.employee_no }}
+    </p>
+
+    <p>
+        <strong>Email:</strong>
+        {{ employee.email }}
+    </p>
+
+    <p>
+        <strong>Compliance Updated:</strong>
+        {{ summary.last_calculated_at }}
+    </p>
+
+</div>
+
+
+{% endblock %}

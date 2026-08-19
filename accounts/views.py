@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 
 from django.contrib.auth import (
@@ -7,18 +9,47 @@ from django.contrib.auth import (
     logout as auth_logout,
 )
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import (
+    login_required,
+)
+
+from django.contrib.auth.forms import (
+    SetPasswordForm,
+)
+
+from django.db.models import (
+    Avg,
+    OuterRef,
+    Subquery,
+)
 
 from django.shortcuts import (
+    get_object_or_404,
     redirect,
     render,
 )
 
-from django.views.decorators.http import require_POST
+from django.utils import timezone
 
-from .decorators import role_required
-from .forms import LoginForm
-from .models import LoginAttempt, Role
+from django.views.decorators.http import (
+    require_POST,
+)
+
+from .decorators import (
+    admin_required,
+    role_required,
+)
+
+from .forms import (
+    AdminUserCreateForm,
+    AdminUserUpdateForm,
+    LoginForm,
+)
+
+from .models import (
+    LoginAttempt,
+    Role,
+)
 
 from policies.models import (
     EMPLOYEE_POLICY_TYPES,
@@ -26,16 +57,16 @@ from policies.models import (
     PolicyAcknowledgement,
 )
 
-from django.db.models import (
-    OuterRef,
-    Subquery,
-)
-
 from training.models import (
     EmployeeTraining,
 )
 
+from training_needs.models import (
+    TrainingNeed,
+)
+
 from pos_security.models import (
+    DailySecurityCheck,
     POSShift,
 )
 
@@ -44,10 +75,32 @@ from incidents.models import (
     IncidentRiskAssessment,
 )
 
+from compliance.models import (
+    ComplianceSummary,
+)
+
+from compliance.services import (
+    recalculate_all_employee_compliance,
+)
+
 from notifications.models import (
     Notification,
 )
 
+from notifications.utils import (
+    sync_employee_reminders,
+)
+
+from auditlog.utils import (
+    log_action,
+)
+
+
+# =========================================================
+# CURRENT USER MODEL
+# =========================================================
+
+User = get_user_model()
 
 # =========================================================
 # HELPER FUNCTIONS
@@ -78,6 +131,7 @@ def find_user_by_identifier(identifier):
     identifier = identifier.strip()
 
     try:
+
         return User.objects.get(
             email__iexact=identifier
         )
@@ -85,11 +139,13 @@ def find_user_by_identifier(identifier):
     except User.DoesNotExist:
 
         try:
+
             return User.objects.get(
                 staff_no__iexact=identifier
             )
 
         except User.DoesNotExist:
+
             return None
 
 
@@ -98,11 +154,19 @@ def redirect_user_by_role(user):
     Send an authenticated user to the correct dashboard.
     """
 
-    if not getattr(user, "role", None):
+    if not getattr(
+        user,
+        "role",
+        None,
+    ):
 
-        return redirect("login")
+        return redirect(
+            "login"
+        )
 
-    role = user.role.role_name
+    role = (
+        user.role.role_name
+    )
 
     if role == Role.ADMIN:
 
@@ -116,7 +180,9 @@ def redirect_user_by_role(user):
             "employee_dashboard"
         )
 
-    return redirect("login")
+    return redirect(
+        "login"
+    )
 
 
 # =========================================================
@@ -127,7 +193,9 @@ def home_redirect(request):
 
     if not request.user.is_authenticated:
 
-        return redirect("login")
+        return redirect(
+            "login"
+        )
 
     return redirect_user_by_role(
         request.user
@@ -140,8 +208,10 @@ def home_redirect(request):
 
 def login_view(request):
 
-    # Already logged-in users should not see
-    # the login page again.
+    # -----------------------------------------------------
+    # ALREADY LOGGED IN
+    # -----------------------------------------------------
+
     if request.user.is_authenticated:
 
         return redirect_user_by_role(
@@ -168,9 +238,9 @@ def login_view(request):
                 ]
             )
 
-            # ---------------------------------------------
-            # Authenticate
-            # ---------------------------------------------
+            # -------------------------------------------------
+            # AUTHENTICATE
+            # -------------------------------------------------
 
             user = authenticate(
                 request,
@@ -178,9 +248,9 @@ def login_view(request):
                 password=password,
             )
 
-            # ---------------------------------------------
-            # Record login attempt
-            # ---------------------------------------------
+            # -------------------------------------------------
+            # FIND USER FOR LOGIN-ATTEMPT RECORD
+            # -------------------------------------------------
 
             matched_user = (
                 user
@@ -188,6 +258,10 @@ def login_view(request):
                     identifier
                 )
             )
+
+            # -------------------------------------------------
+            # RECORD LOGIN ATTEMPT
+            # -------------------------------------------------
 
             LoginAttempt.objects.create(
                 login_identifier=identifier,
@@ -198,15 +272,31 @@ def login_view(request):
                 ),
             )
 
-            # ---------------------------------------------
-            # Successful login
-            # ---------------------------------------------
+            # -------------------------------------------------
+            # SUCCESSFUL LOGIN
+            # -------------------------------------------------
 
             if user is not None:
 
                 auth_login(
                     request,
                     user,
+                )
+
+                # ---------------------------------------------
+                # AUDIT SUCCESSFUL LOGIN
+                # ---------------------------------------------
+
+                log_action(
+                    request=request,
+                    action="LOGIN_SUCCESS",
+                    entity_type="User",
+                    entity_id=user.user_id,
+                    user=user,
+                    details=(
+                        f"Successful login for "
+                        f"{user.staff_no}."
+                    ),
                 )
 
                 messages.success(
@@ -218,9 +308,25 @@ def login_view(request):
                     user
                 )
 
-            # ---------------------------------------------
-            # Failed login
-            # ---------------------------------------------
+            # -------------------------------------------------
+            # FAILED LOGIN AUDIT
+            # -------------------------------------------------
+
+            log_action(
+                request=request,
+                action="LOGIN_FAILED",
+                entity_type="Authentication",
+                entity_id=None,
+                details=(
+                    f"Failed login attempt for "
+                    f"identifier "
+                    f"'{identifier}'."
+                ),
+            )
+
+            # -------------------------------------------------
+            # FAILED LOGIN MESSAGE
+            # -------------------------------------------------
 
             messages.error(
                 request,
@@ -245,44 +351,89 @@ def login_view(request):
 
 @login_required
 @require_POST
-def logout_view(request):
+def logout_view(
+    request,
+):
 
-    auth_logout(request)
+    # -----------------------------------------------------
+    # STORE USER BEFORE LOGOUT
+    # -----------------------------------------------------
+
+    user = request.user
+
+    # -----------------------------------------------------
+    # AUDIT LOG
+    # -----------------------------------------------------
+
+    log_action(
+        request=request,
+        action="LOGOUT",
+        entity_type="User",
+        entity_id=user.user_id,
+        user=user,
+        details=(
+            f"User "
+            f"{user.staff_no} "
+            f"logged out."
+        ),
+    )
+
+    # -----------------------------------------------------
+    # LOGOUT
+    # -----------------------------------------------------
+
+    auth_logout(
+        request
+    )
 
     messages.success(
         request,
         "You have been logged out."
     )
 
-    return redirect("login")
-
-
+    return redirect(
+        "login"
+    )
 # =========================================================
 # EMPLOYEE DASHBOARD
 # =========================================================
 
 @role_required(Role.EMPLOYEE)
 def employee_dashboard(request):
-    open_shift = (
-    POSShift.objects
-    .filter(
-        user=request.user,
-        status=POSShift.Status.OPEN,
-    )
-    .select_related(
-        "pos"
-    )
-    .first()
-)
 
-    
+    # -----------------------------------------------------
+    # DAILY NOTIFICATION REMINDERS
+    # -----------------------------------------------------
+
+    sync_employee_reminders(
+        request.user
+    )
+
+    # -----------------------------------------------------
+    # OPEN POS SHIFT
+    # -----------------------------------------------------
+
+    open_shift = (
+        POSShift.objects
+        .filter(
+            user=request.user,
+            status=(
+                POSShift.Status.OPEN
+            ),
+        )
+        .select_related(
+            "pos"
+        )
+        .first()
+    )
 
     # -----------------------------------------------------
     # POLICY COUNT
     # -----------------------------------------------------
 
     published_policies = (
-        Policy.objects.filter(
+        Policy.objects
+        .filter(
             status=(
                 Policy.Status.PUBLISHED
             ),
@@ -297,8 +448,7 @@ def employee_dashboard(request):
     )
 
     acknowledged_policies = (
-        PolicyAcknowledgement
-        .objects
+        PolicyAcknowledgement.objects
         .filter(
             user=request.user,
             policy__in=(
@@ -313,7 +463,6 @@ def employee_dashboard(request):
         - acknowledged_policies,
         0,
     )
-
 
     # -----------------------------------------------------
     # TRAINING COUNT
@@ -334,7 +483,6 @@ def employee_dashboard(request):
         .count()
     )
 
-
     # -----------------------------------------------------
     # DASHBOARD
     # -----------------------------------------------------
@@ -351,33 +499,161 @@ def employee_dashboard(request):
                 pending_training_count
             ),
 
-            "open_shift": open_shift,
+            "open_shift": (
+                open_shift
+            ),
         },
     )
+
+
 # =========================================================
 # ADMINISTRATOR DASHBOARD
 # =========================================================
 
 @role_required(Role.ADMIN)
-def administrator_dashboard(request):
+def administrator_dashboard(
+    request,
+):
 
-    pending_incident_count = (
-        Incident.objects
-        .exclude(
+    User = get_user_model()
+
+    # =====================================================
+    # REFRESH COMPLIANCE SNAPSHOTS
+    # =====================================================
+
+    recalculate_all_employee_compliance()
+
+
+    # =====================================================
+    # ACTIVE EMPLOYEES
+    # =====================================================
+
+    active_employees = (
+        User.objects
+        .filter(
+            role__role_name=(
+                Role.EMPLOYEE
+            ),
             status=(
-                Incident.Status.RESOLVED
+                User.Status.ACTIVE
+            ),
+        )
+    )
+
+    active_employee_count = (
+        active_employees.count()
+    )
+
+
+    # =====================================================
+    # COMPLIANCE SUMMARY
+    # =====================================================
+
+    compliance_records = (
+        ComplianceSummary.objects
+        .filter(
+            user__role__role_name=(
+                Role.EMPLOYEE
+            ),
+            user__status=(
+                User.Status.ACTIVE
+            ),
+        )
+    )
+
+
+    overall_policy_compliance = (
+        compliance_records
+        .aggregate(
+            value=Avg(
+                "policy_compliance"
+            )
+        )["value"]
+        or Decimal("0")
+    )
+
+
+    overall_pos_compliance = (
+        compliance_records
+        .aggregate(
+            value=Avg(
+                "pos_check_compliance"
+            )
+        )["value"]
+        or Decimal("0")
+    )
+
+
+    average_employee_score = (
+        compliance_records
+        .aggregate(
+            value=Avg(
+                "employee_score"
+            )
+        )["value"]
+        or Decimal("0")
+    )
+
+
+    # =====================================================
+    # TRAINING COMPLETION
+    # =====================================================
+
+    training_assignments = (
+        EmployeeTraining.objects
+        .filter(
+            user__role__role_name=(
+                Role.EMPLOYEE
+            )
+        )
+    )
+
+
+    total_training_assignments = (
+        training_assignments.count()
+    )
+
+
+    completed_training_assignments = (
+        training_assignments
+        .filter(
+            status=(
+                EmployeeTraining
+                .Status
+                .COMPLETED
             )
         )
         .count()
     )
 
-    # ---------------------------------------------------------
-    # LATEST RISK LEVEL FOR EACH INCIDENT
-    # ---------------------------------------------------------
+
+    if total_training_assignments:
+
+        training_completion = (
+            Decimal(
+                completed_training_assignments
+            )
+            /
+            Decimal(
+                total_training_assignments
+            )
+            *
+            Decimal("100")
+        )
+
+    else:
+
+        training_completion = (
+            Decimal("100")
+        )
+
+
+    # =====================================================
+    # INCIDENTS + LATEST RISK
+    # =====================================================
 
     latest_risk_query = (
-        IncidentRiskAssessment
-        .objects
+        IncidentRiskAssessment.objects
         .filter(
             incident_id=OuterRef(
                 "pk"
@@ -392,22 +668,34 @@ def administrator_dashboard(request):
     )
 
 
-    # ---------------------------------------------------------
-    # HIGH-RISK OPEN INCIDENT COUNT
-    # ---------------------------------------------------------
-
-    high_risk_incident_count = (
+    incidents_with_risk = (
         Incident.objects
-        .exclude(
-            status=(
-                Incident.Status.RESOLVED
-            )
-        )
         .annotate(
             current_risk=(
                 Subquery(
                     latest_risk_query
                 )
+            )
+        )
+    )
+
+
+    open_incident_count = (
+        incidents_with_risk
+        .exclude(
+            status=(
+                Incident.Status.RESOLVED
+            )
+        )
+        .count()
+    )
+
+
+    high_risk_incident_count = (
+        incidents_with_risk
+        .exclude(
+            status=(
+                Incident.Status.RESOLVED
             )
         )
         .filter(
@@ -420,7 +708,107 @@ def administrator_dashboard(request):
         .count()
     )
 
-    
+
+    recent_incidents = (
+        incidents_with_risk
+        .select_related(
+            "reported_by",
+            "category",
+            "pos",
+        )
+        .order_by(
+            "-created_at"
+        )[:5]
+    )
+
+
+    # =====================================================
+    # TRAINING NEEDS
+    # =====================================================
+
+    open_training_need_count = (
+        TrainingNeed.objects
+        .filter(
+            status=(
+                TrainingNeed
+                .Status
+                .OPEN
+            )
+        )
+        .count()
+    )
+
+
+    high_training_need_count = (
+        TrainingNeed.objects
+        .filter(
+            status=(
+                TrainingNeed
+                .Status
+                .OPEN
+            ),
+            priority=(
+                TrainingNeed
+                .Priority
+                .HIGH
+            ),
+        )
+        .count()
+    )
+
+
+    recent_training_needs = (
+        TrainingNeed.objects
+        .filter(
+            status=(
+                TrainingNeed
+                .Status
+                .OPEN
+            )
+        )
+        .select_related(
+            "user",
+            "training",
+        )
+        .order_by(
+            "-identified_at"
+        )[:5]
+    )
+
+
+    # =====================================================
+    # TODAY'S POS SECURITY
+    # =====================================================
+
+    today = timezone.localdate()
+
+
+    security_checks_today = (
+        DailySecurityCheck.objects
+        .filter(
+            checked_at__date=today
+        )
+        .count()
+    )
+
+
+    suspicious_checks_today = (
+        DailySecurityCheck.objects
+        .filter(
+            checked_at__date=today,
+            result=(
+                DailySecurityCheck
+                .Result
+                .SUSPICIOUS
+            ),
+        )
+        .count()
+    )
+
+
+    # =====================================================
+    # NOTIFICATIONS
+    # =====================================================
 
     unread_notification_count = (
         Notification.objects
@@ -430,6 +818,7 @@ def administrator_dashboard(request):
         )
         .count()
     )
+
 
     recent_notifications = (
         Notification.objects
@@ -442,15 +831,64 @@ def administrator_dashboard(request):
         )[:5]
     )
 
+    # =====================================================
+    # RENDER ADMINISTRATOR DASHBOARD
+    # =====================================================
+
     return render(
         request,
-        (
-            "administrator/"
-            "dashboard.html"
-        ),
+        "administrator/dashboard.html",
         {
-            "pending_incident_count": (
-                pending_incident_count
+            "active_employee_count": (
+                active_employee_count
+            ),
+
+            "overall_policy_compliance": (
+                overall_policy_compliance
+            ),
+
+            "training_completion": (
+                training_completion
+            ),
+
+            "overall_pos_compliance": (
+                overall_pos_compliance
+            ),
+
+            "average_employee_score": (
+                average_employee_score
+            ),
+
+            "open_incident_count": (
+                open_incident_count
+            ),
+
+            "high_risk_incident_count": (
+                high_risk_incident_count
+            ),
+
+            "open_training_need_count": (
+                open_training_need_count
+            ),
+
+            "high_training_need_count": (
+                high_training_need_count
+            ),
+
+            "security_checks_today": (
+                security_checks_today
+            ),
+
+            "suspicious_checks_today": (
+                suspicious_checks_today
+            ),
+
+            "recent_incidents": (
+                recent_incidents
+            ),
+
+            "recent_training_needs": (
+                recent_training_needs
             ),
 
             "unread_notification_count": (
@@ -460,8 +898,346 @@ def administrator_dashboard(request):
             "recent_notifications": (
                 recent_notifications
             ),
-            "high_risk_incident_count": (
-                high_risk_incident_count
-            ),
+        },
+    )
+
+
+# =========================================================
+# ADMIN USER MANAGEMENT - USER LIST
+# =========================================================
+
+@admin_required
+def admin_user_list(
+    request,
+):
+
+    users = (
+        User.objects
+        .select_related(
+            "role"
+        )
+        .all()
+        .order_by(
+            "staff_no"
+        )
+    )
+
+    return render(
+        request,
+        "accounts/admin/user_list.html",
+        {
+            "users": users,
+        },
+    )
+
+
+# =========================================================
+# ADMIN USER MANAGEMENT - CREATE USER
+# =========================================================
+
+@admin_required
+def admin_user_create(
+    request,
+):
+
+    if request.method == "POST":
+
+        form = AdminUserCreateForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            user = form.save()
+
+            messages.success(
+                request,
+                "User created successfully.",
+            )
+
+            return redirect(
+                "admin_user_list"
+            )
+
+    else:
+
+        form = AdminUserCreateForm()
+
+    return render(
+        request,
+        "accounts/admin/user_form.html",
+        {
+            "form": form,
+            "page_title": "Add User",
+        },
+    )
+
+
+# =========================================================
+# ADMIN USER MANAGEMENT - EDIT USER
+# =========================================================
+
+@admin_required
+def admin_user_edit(
+    request,
+    user_id,
+):
+
+    user = get_object_or_404(
+        User,
+        pk=user_id,
+    )
+
+    if request.method == "POST":
+
+        form = AdminUserUpdateForm(
+            request.POST,
+            instance=user,
+        )
+
+        if form.is_valid():
+
+            if (
+                user == request.user
+                and "is_staff" in form.fields
+                and not form.cleaned_data.get(
+                    "is_staff"
+                )
+            ):
+
+                form.add_error(
+                    "is_staff",
+                    (
+                        "You cannot remove your own "
+                        "administrator access."
+                    ),
+                )
+
+            else:
+
+                form.save()
+
+                messages.success(
+                    request,
+                    "User updated successfully.",
+                )
+
+                return redirect(
+                    "admin_user_list"
+                )
+
+    else:
+
+        form = AdminUserUpdateForm(
+            instance=user
+        )
+
+    return render(
+        request,
+        "accounts/admin/user_form.html",
+        {
+            "form": form,
+            "page_title": "Edit User",
+            "target_user": user,
+        },
+    )
+
+
+# =========================================================
+# ADMIN USER MANAGEMENT - USER DETAILS
+# =========================================================
+
+@admin_required
+def admin_user_detail(
+    request,
+    user_id,
+):
+
+    user = get_object_or_404(
+        User,
+        pk=user_id,
+    )
+
+    return render(
+        request,
+        "accounts/admin/user_detail.html",
+        {
+            "target_user": user,
+        },
+    )
+
+
+# =========================================================
+# ADMIN USER MANAGEMENT - ENABLE / DISABLE USER
+# =========================================================
+
+@admin_required
+@require_POST
+def admin_toggle_user(
+    request,
+    user_id,
+):
+
+    user = get_object_or_404(
+        User,
+        pk=user_id,
+    )
+
+    # -----------------------------------------------------
+    # PREVENT SELF-DISABLING
+    # -----------------------------------------------------
+
+    if user == request.user:
+
+        messages.error(
+            request,
+            "You cannot disable your own account.",
+        )
+
+        return redirect(
+            "admin_user_list"
+        )
+
+
+    # -----------------------------------------------------
+    # ACTIVE -> DISABLED
+    # -----------------------------------------------------
+
+    if (
+        user.status
+        == User.Status.ACTIVE
+    ):
+
+        user.status = (
+            User.Status.DISABLED
+        )
+
+        message = (
+            "User account disabled successfully."
+        )
+
+
+    # -----------------------------------------------------
+    # DISABLED -> ACTIVE
+    # -----------------------------------------------------
+
+    else:
+
+        user.status = (
+            User.Status.ACTIVE
+        )
+
+        message = (
+            "User account enabled successfully."
+        )
+
+
+    # -----------------------------------------------------
+    # SAVE STATUS
+    # -----------------------------------------------------
+
+    user.save(
+        update_fields=[
+            "status",
+            "updated_at",
+        ]
+    )
+
+
+    # -----------------------------------------------------
+    # AUDIT LOG
+    # -----------------------------------------------------
+
+    log_action(
+        request=request,
+
+        action=(
+            "USER_DISABLED"
+            if (
+                user.status
+                == User.Status.DISABLED
+            )
+            else
+            "USER_ENABLED"
+        ),
+
+        entity_type="User",
+
+        entity_id=user.pk,
+
+        details=(
+            f"Administrator "
+            f"{request.user.staff_no} "
+            f"{'disabled' if user.status == User.Status.DISABLED else 'enabled'} "
+            f"user {user.staff_no}."
+        ),
+    )
+
+
+    # -----------------------------------------------------
+    # SUCCESS MESSAGE
+    # -----------------------------------------------------
+
+    messages.success(
+        request,
+        message,
+    )
+
+
+    return redirect(
+        "admin_user_list"
+    )
+
+# =========================================================
+# ADMIN USER MANAGEMENT - RESET PASSWORD
+# =========================================================
+
+@admin_required
+def admin_reset_password(
+    request,
+    user_id,
+):
+
+    user = get_object_or_404(
+        User,
+        pk=user_id,
+    )
+
+    if request.method == "POST":
+
+        form = SetPasswordForm(
+            user,
+            request.POST,
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                (
+                    "User password has "
+                    "been reset."
+                ),
+            )
+
+            return redirect(
+                "admin_user_detail",
+                user_id=user.pk,
+            )
+
+    else:
+
+        form = SetPasswordForm(
+            user
+        )
+
+    return render(
+        request,
+        "accounts/admin/reset_password.html",
+        {
+            "form": form,
+            "target_user": user,
         },
     )

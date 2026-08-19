@@ -1,0 +1,152 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Assign Additional Training | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_training_needs %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Assign Additional Training
+    </h1>
+
+    <p class="page-description">
+        Assign additional security training
+        based on an identified training need.
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Training Need
+    </h2>
+
+
+    <div class="detail-grid">
+
+        <div>
+
+            <strong>
+                Employee
+            </strong>
+
+            <p>
+                {{ need.user.staff_no }}
+                -
+                {{ need.user.full_name }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Training
+            </strong>
+
+            <p>
+                {{ need.training.title }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Quiz Score
+            </strong>
+
+            <p>
+                {{ need.score }}%
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                Priority
+            </strong>
+
+            <p>
+                {{ need.priority }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel form-panel">
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.due_date.id_for_label }}"
+            >
+                Due Date
+            </label>
+
+            {{ form.due_date }}
+
+
+            {% for error in form.due_date.errors %}
+
+                <div class="field-error">
+                    {{ error }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                onclick="return confirm('Assign this additional training?')"
+            >
+                Assign Additional Training
+            </button>
+
+
+            <a
+                href="{% url 'training_needs:admin_list' %}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}

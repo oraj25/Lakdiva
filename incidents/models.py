@@ -549,3 +549,117 @@ class IncidentRiskAssessment(models.Model):
             f"- {self.risk_level} "
             f"({self.risk_score}/12)"
         )
+
+
+# =========================================================
+# INCIDENT ACTION / INVESTIGATION HISTORY
+# =========================================================
+
+class IncidentAction(models.Model):
+
+    # -----------------------------------------------------
+    # ACTION TYPES
+    # -----------------------------------------------------
+
+    class ActionType(models.TextChoices):
+
+        INVESTIGATION = (
+            "INVESTIGATION",
+            "Investigation",
+        )
+
+        STATUS_CHANGE = (
+            "STATUS_CHANGE",
+            "Status Change",
+        )
+
+        CORRECTIVE_ACTION = (
+            "CORRECTIVE_ACTION",
+            "Corrective Action",
+        )
+
+        RESOLUTION = (
+            "RESOLUTION",
+            "Resolution",
+        )
+
+    # -----------------------------------------------------
+    # DATABASE FIELDS
+    # -----------------------------------------------------
+
+    action_id = models.BigAutoField(
+        primary_key=True
+    )
+
+    incident = models.ForeignKey(
+        Incident,
+        on_delete=models.CASCADE,
+        related_name="actions",
+        db_column="incident_id",
+    )
+
+    admin_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="incident_actions",
+        db_column="admin_user_id",
+    )
+
+    action_type = models.CharField(
+        max_length=30,
+        choices=ActionType.choices,
+    )
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+    )
+
+    # -----------------------------------------------------
+    # META
+    # -----------------------------------------------------
+
+    class Meta:
+
+        db_table = "incident_actions"
+
+        ordering = [
+            "-created_at"
+        ]
+
+        indexes = [
+
+            models.Index(
+                fields=[
+                    "incident",
+                    "created_at",
+                ]
+            ),
+
+            models.Index(
+                fields=[
+                    "action_type"
+                ]
+            ),
+
+            models.Index(
+                fields=[
+                    "admin_user"
+                ]
+            ),
+        ]
+
+    # -----------------------------------------------------
+    # STRING REPRESENTATION
+    # -----------------------------------------------------
+
+    def __str__(self):
+
+        return (
+            f"{self.incident.incident_ref} - "
+            f"{self.get_action_type_display()}"
+        )

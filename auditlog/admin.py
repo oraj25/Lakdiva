@@ -1,10 +1,14 @@
 from django.contrib import admin
 
-from .models import AuditLog
+from .models import (
+    AuditLog,
+)
 
 
 @admin.register(AuditLog)
-class AuditLogAdmin(admin.ModelAdmin):
+class AuditLogAdmin(
+    admin.ModelAdmin
+):
 
     list_display = [
         "log_id",
@@ -23,15 +27,16 @@ class AuditLogAdmin(admin.ModelAdmin):
     ]
 
     search_fields = [
-        "action",
-        "details",
-        "user__email",
         "user__staff_no",
         "user__full_name",
+        "action",
+        "entity_type",
+        "details",
+        "ip_address",
     ]
 
     ordering = [
-        "-created_at",
+        "-created_at"
     ]
 
     readonly_fields = [
@@ -44,22 +49,40 @@ class AuditLogAdmin(admin.ModelAdmin):
         "created_at",
     ]
 
+
+    # -----------------------------------------------------
+    # NO MANUAL CREATE
+    # -----------------------------------------------------
+
     def has_add_permission(
         self,
         request,
     ):
+
         return False
+
+
+    # -----------------------------------------------------
+    # NO EDIT
+    # -----------------------------------------------------
 
     def has_change_permission(
         self,
         request,
         obj=None,
     ):
+
         return False
+
+
+    # -----------------------------------------------------
+    # NO DELETE
+    # -----------------------------------------------------
 
     def has_delete_permission(
         self,
         request,
         obj=None,
     ):
+
         return False

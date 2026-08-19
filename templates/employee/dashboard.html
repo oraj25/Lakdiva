@@ -20,19 +20,12 @@ active
         Employee Dashboard
     </h1>
 
-
     <p class="page-description">
-
-        Welcome,
-        {{ request.user.full_name }}.
-
-        View your current security
-        responsibilities and activities.
-
+        Welcome, {{ request.user.full_name }}.
+        View your current security responsibilities and activities.
     </p>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -93,36 +86,43 @@ active
     </div>
 
 
-    <div class="card-label">
-        Shift Status
+    <!-- =================================================
+         FIXED SHIFT STATUS CARD
+         ================================================= -->
+
+    <div class="card">
+
+        <div class="card-label">
+            Shift Status
+        </div>
+
+
+        {% if open_shift %}
+
+            <div class="card-value small-value">
+                {{ open_shift.pos.terminal_code }}
+            </div>
+
+            <div class="card-note">
+                Active shift #{{ open_shift.shift_id }}
+            </div>
+
+        {% else %}
+
+            <div class="card-value">
+                —
+            </div>
+
+            <div class="card-note">
+                No active POS shift
+            </div>
+
+        {% endif %}
+
     </div>
 
 
-    {% if open_shift %}
-
-        <div class="card-value small-value">
-            {{ open_shift.pos.terminal_code }}
-        </div>
-
-        <div class="card-note">
-            Active shift #{{ open_shift.shift_id }}
-        </div>
-
-    {% else %}
-
-        <div class="card-value">
-            —
-        </div>
-
-        <div class="card-note">
-            No active POS shift
-        </div>
-
-    {% endif %}
-
-
 </div>
-
 
 
 <!-- =====================================================
@@ -208,7 +208,7 @@ active
 
 
         <a
-            href="#"
+            href="{% url 'compliance:my_compliance' %}"
             class="action-card"
         >
 
@@ -229,7 +229,6 @@ active
 </div>
 
 
-
 <!-- =====================================================
      PENDING TASKS
      ===================================================== -->
@@ -242,9 +241,7 @@ active
 
 
     <div class="empty-state">
-
         No pending security tasks.
-
     </div>
 
 </div>

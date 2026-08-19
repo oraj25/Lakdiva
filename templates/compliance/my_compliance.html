@@ -1,0 +1,175 @@
+{% extends "employee/base_employee.html" %}
+
+
+{% block title %}
+My Compliance | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_compliance %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        My Compliance
+    </h1>
+
+    <p>
+        View your current security policy,
+        training and POS security compliance.
+    </p>
+
+</div>
+
+
+<div class="compliance-cards">
+
+    <div class="compliance-card">
+
+        <h3>
+            Policy Compliance
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.policy_compliance|floatformat:0 }}%
+
+        </div>
+
+        <p>
+            Policies acknowledged
+        </p>
+
+    </div>
+
+
+    <div class="compliance-card">
+
+        <h3>
+            Training Compliance
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.training_compliance|floatformat:0 }}%
+
+        </div>
+
+        <p>
+            Required training completed
+        </p>
+
+    </div>
+
+
+    <div class="compliance-card">
+
+        <h3>
+            POS Security Compliance
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.pos_check_compliance|floatformat:0 }}%
+
+        </div>
+
+        <p>
+            POS security checks completed
+        </p>
+
+    </div>
+
+
+    <div class="compliance-card">
+
+        <h3>
+            Employee Security Score
+        </h3>
+
+        <div class="compliance-score">
+
+            {{ summary.employee_score|floatformat:0 }}%
+
+        </div>
+
+        <p>
+            Overall compliance
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+        Compliance Status
+    </h2>
+
+
+    {% if summary.employee_score >= 80 %}
+
+        <div class="status-success">
+
+            Good compliance
+
+        </div>
+
+        <p>
+            Your current security compliance
+            is satisfactory.
+        </p>
+
+    {% elif summary.employee_score >= 50 %}
+
+        <div class="status-warning">
+
+            Compliance needs attention
+
+        </div>
+
+        <p>
+            Please complete outstanding
+            policies, training or POS
+            security requirements.
+        </p>
+
+    {% else %}
+
+        <div class="status-danger">
+
+            Low compliance
+
+        </div>
+
+        <p>
+            Please complete your outstanding
+            security requirements.
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+        Last Calculated
+    </h2>
+
+    <p>
+        {{ summary.last_calculated_at }}
+    </p>
+
+</div>
+
+
+{% endblock %}

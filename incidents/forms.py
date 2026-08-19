@@ -555,3 +555,45 @@ class IncidentRiskAssessmentForm(
             "unauthorized_access",
             "business_impact",
         ]
+
+
+# =========================================================
+# INCIDENT INVESTIGATION / RESOLUTION FORM
+# =========================================================
+
+class IncidentActionForm(forms.Form):
+
+    action_type = forms.ChoiceField(
+        choices=[
+            (
+                "INVESTIGATION",
+                "Investigation",
+            ),
+            (
+                "CORRECTIVE_ACTION",
+                "Corrective Action",
+            ),
+            (
+                "RESOLUTION",
+                "Resolution",
+            ),
+        ],
+        widget=forms.Select,
+        label="Action Type",
+    )
+
+    notes = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "rows": 6,
+                "placeholder": (
+                    "Enter investigation findings, "
+                    "corrective action, or resolution "
+                    "details..."
+                ),
+            }
+        ),
+        min_length=10,
+        max_length=5000,
+        label="Details",
+    )

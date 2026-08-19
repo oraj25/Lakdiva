@@ -1,0 +1,452 @@
+{% extends "administrator/base_admin.html" %}
+
+
+{% block title %}
+Audit Logs | Lakdiva SecurePOS
+{% endblock %}
+
+
+{% block nav_audit %}
+active
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1 class="page-title">
+        Audit Log Management
+    </h1>
+
+    <p class="page-description">
+        Review security-related activities
+        recorded across Lakdiva SecurePOS.
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     SUMMARY CARDS
+     ===================================================== -->
+
+<div class="card-grid">
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Total Audit Records
+        </div>
+
+        <div class="card-value">
+            {{ total_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Events Today
+        </div>
+
+        <div class="card-value">
+            {{ today_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            Matching Records
+        </div>
+
+        <div class="card-value">
+            {{ filtered_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+            System Events
+        </div>
+
+        <div class="card-value">
+            {{ system_event_count }}
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =====================================================
+     FILTERS
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Search & Filter
+    </h2>
+
+
+    <form
+        method="get"
+        class="audit-filter-form"
+    >
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.search.id_for_label }}"
+            >
+                Search
+            </label>
+
+            {{ form.search }}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.user.id_for_label }}"
+            >
+                User
+            </label>
+
+            {{ form.user }}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.action.id_for_label }}"
+            >
+                Action
+            </label>
+
+            {{ form.action }}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.entity_type.id_for_label }}"
+            >
+                Entity
+            </label>
+
+            {{ form.entity_type }}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.date_from.id_for_label }}"
+            >
+                From
+            </label>
+
+            {{ form.date_from }}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.date_to.id_for_label }}"
+            >
+                To
+            </label>
+
+            {{ form.date_to }}
+
+        </div>
+
+
+        <div class="audit-filter-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Apply Filters
+            </button>
+
+
+            <a
+                href="{% url 'auditlog:admin_list' %}"
+                class="btn btn-secondary"
+            >
+                Clear
+            </a>
+
+        </div>
+
+    </form>
+
+
+    {% if form.non_field_errors %}
+
+        <div class="message error">
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     AUDIT TABLE
+     ===================================================== -->
+
+<div class="panel">
+
+    <h2 class="panel-title">
+        Audit Records
+    </h2>
+
+
+    {% if logs %}
+
+        <div class="table-container">
+
+            <table class="app-table audit-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date / Time
+                        </th>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                        <th>
+                            Entity
+                        </th>
+
+                        <th>
+                            IP Address
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for log in logs %}
+
+                        <tr>
+
+
+                            <td>
+
+                                {{ log.created_at }}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if log.user %}
+
+                                    <strong>
+                                        {{ log.user.staff_no }}
+                                    </strong>
+
+                                    <br>
+
+                                    <small>
+                                        {{ log.user.full_name }}
+                                    </small>
+
+                                {% else %}
+
+                                    <span class="badge badge-neutral">
+                                        SYSTEM
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="audit-action">
+
+                                    {{ log.action }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if log.entity_type %}
+
+                                    {{ log.entity_type }}
+
+                                    {% if log.entity_id %}
+
+                                        #{{ log.entity_id }}
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ log.ip_address|default:"—" }}
+
+                            </td>
+
+
+                            <td>
+
+                                <a
+                                    href="{% url 'auditlog:admin_detail' log.log_id %}"
+                                    class="btn btn-secondary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =============================================
+             PAGINATION
+             ============================================= -->
+
+        {% if page_obj.has_other_pages %}
+
+            <div class="pagination">
+
+
+                {% if page_obj.has_previous %}
+
+                    <a
+                        class="btn btn-secondary"
+                        href="?{% if filter_query %}{{ filter_query }}&{% endif %}page=1"
+                    >
+                        First
+                    </a>
+
+
+                    <a
+                        class="btn btn-secondary"
+                        href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                    >
+                        Previous
+                    </a>
+
+                {% endif %}
+
+
+                <span class="pagination-info">
+
+                    Page
+                    {{ page_obj.number }}
+                    of
+                    {{ page_obj.paginator.num_pages }}
+
+                </span>
+
+
+                {% if page_obj.has_next %}
+
+                    <a
+                        class="btn btn-secondary"
+                        href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+                    >
+                        Next
+                    </a>
+
+
+                    <a
+                        class="btn btn-secondary"
+                        href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}"
+                    >
+                        Last
+                    </a>
+
+                {% endif %}
+
+
+            </div>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            No audit records match
+            the selected filters.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+{% endblock %}
